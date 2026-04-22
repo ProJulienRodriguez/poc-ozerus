@@ -1,0 +1,99 @@
+:host {
+  display: block;
+  font-family: var(--oz-font-sans);
+  color: var(--oz-ink);
+}
+
+.card {
+  border-radius: var(--oz-r-2);
+  background: var(--oz-white);
+  border: 1px solid var(--oz-line);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 200ms var(--oz-ease), border-color 200ms var(--oz-ease), transform 200ms var(--oz-ease);
+}
+
+/* tones */
+.card--tone-default { background: var(--oz-white); }
+.card--tone-cream { background: var(--oz-cream); }
+.card--tone-sand { background: var(--oz-sand); }
+.card--tone-navy {
+  background: var(--oz-navy);
+  color: #F2EEE4;
+  border-color: var(--oz-navy-500);
+}
+.card--tone-navy .heading { color: #FAF7F2; }
+.card--tone-navy .sub { color: rgba(242,238,228,0.6); }
+
+/* borders */
+.card--border-solid { border-style: solid; }
+.card--border-dashed { border-style: dashed; }
+.card--border-none { border: none; }
+
+/* paddings */
+.card--p-none .head,
+.card--p-none .body,
+.card--p-none .foot { padding: 0; }
+.card--p-sm .head { padding: 12px 16px; }
+.card--p-sm .body { padding: 12px 16px; }
+.card--p-sm .foot { padding: 12px 16px; }
+.card--p-md .head { padding: 16px 20px; }
+.card--p-md .body { padding: 16px 20px; }
+.card--p-md .foot { padding: 16px 20px; }
+.card--p-lg .head { padding: 24px 28px; }
+.card--p-lg .body { padding: 24px 28px; }
+.card--p-lg .foot { padding: 24px 28px; }
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--oz-line-2);
+}
+.card--tone-navy .head { border-bottom-color: var(--oz-navy-500); }
+.head-start:empty, .head-end:empty { display: none; }
+
+.titles { flex: 1; min-width: 0; }
+
+.heading {
+  font-family: var(--oz-font-serif);
+  font-size: 18px;
+  line-height: 1.25;
+  color: var(--oz-ink);
+  letter-spacing: -0.01em;
+}
+.sub {
+  font-size: 12px;
+  color: var(--oz-ink-3);
+  margin-top: 2px;
+}
+
+.body { flex: 1; }
+
+.foot {
+  border-top: 1px solid var(--oz-line-2);
+}
+.card--tone-navy .foot { border-top-color: var(--oz-navy-500); }
+.foot:empty, .foot:has(slot:empty) { display: none; }
+/* fallback for browsers without :has on slots */
+slot[name="footer"] {
+  display: contents;
+}
+
+/* elevated / interactive */
+.card--elevated {
+  box-shadow: var(--oz-sh-2);
+  border-color: transparent;
+}
+
+.card--interactive {
+  cursor: pointer;
+}
+.card--interactive:hover {
+  box-shadow: var(--oz-sh-3);
+  transform: translateY(-1px);
+}
+.card--interactive:active {
+  transform: translateY(0);
+  box-shadow: var(--oz-sh-1);
+}

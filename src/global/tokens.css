@@ -1,0 +1,142 @@
+/* Ozerus Design System — Design Tokens */
+
+@import url("https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  /* === Colors — Brand === */
+  --oz-forest: #233056;         /* primary (navy blue) — historical name kept */
+  --oz-forest-700: #1A2442;
+  --oz-forest-300: #6976A0;
+  --oz-forest-100: #D6DBE4;
+  --oz-forest-50:  #EBEEF3;
+
+  --oz-navy: #1B2A3E;           /* dark surfaces */
+  --oz-navy-700: #14202F;
+  --oz-navy-500: #2E4258;
+  --oz-navy-100: #C9D2DE;
+
+  --oz-mist: #BFD0DC;           /* soft blue accent */
+  --oz-mist-200: #DCE6EE;
+  --oz-mist-50:  #EEF3F7;
+
+  --oz-ochre: #E8A33D;          /* highlight */
+  --oz-ochre-700: #C8861F;
+  --oz-ochre-100: #F7E4C2;
+
+  /* === Neutrals === */
+  --oz-ink: #1F1D1B;            /* body text */
+  --oz-ink-2: #3C3A37;
+  --oz-ink-3: #6B6762;
+  --oz-ink-4: #9A958E;
+  --oz-line: #E4DFD6;
+  --oz-line-2: #EFEAE0;
+  --oz-sand: #F5F1EA;           /* app bg */
+  --oz-cream: #FAF7F2;          /* surfaces */
+  --oz-white: #FFFFFF;
+
+  /* === Semantic === */
+  --oz-success: #2F5849;        /* stays green — positive deltas must remain green */
+  --oz-success-soft: #E4ECE6;
+  --oz-warning: #C8861F;
+  --oz-warning-soft: #F7E4C2;
+  --oz-danger: #A33B2E;
+  --oz-danger-soft: #F1DFDA;
+  --oz-info: #1B2A3E;
+  --oz-info-soft: #DCE6EE;
+
+  /* === Typography === */
+  --oz-font-serif: familjen-grotesk, "familjen grotesk", "Familjen Grotesk", sans-serif;
+  --oz-font-sans: familjen-grotesk, "familjen grotesk", "Familjen Grotesk", sans-serif;
+  --oz-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --oz-fs-display: 56px;
+  --oz-fs-h1: 40px;
+  --oz-fs-h2: 28px;
+  --oz-fs-h3: 20px;
+  --oz-fs-h4: 16px;
+  --oz-fs-body: 14px;
+  --oz-fs-sm: 13px;
+  --oz-fs-xs: 12px;
+  --oz-fs-micro: 11px;
+
+  --oz-lh-tight: 1.1;
+  --oz-lh-snug: 1.25;
+  --oz-lh-normal: 1.45;
+  --oz-lh-loose: 1.6;
+
+  /* === Spacing (4px base) === */
+  --oz-s-1: 4px;
+  --oz-s-2: 8px;
+  --oz-s-3: 12px;
+  --oz-s-4: 16px;
+  --oz-s-5: 20px;
+  --oz-s-6: 24px;
+  --oz-s-8: 32px;
+  --oz-s-10: 40px;
+  --oz-s-12: 48px;
+  --oz-s-16: 64px;
+  --oz-s-20: 80px;
+
+  /* === Radius === */
+  --oz-r-0: 0px;
+  --oz-r-1: 2px;
+  --oz-r-2: 4px;
+  --oz-r-3: 6px;
+  --oz-r-4: 10px;
+  --oz-r-full: 999px;
+
+  /* === Shadows === */
+  --oz-sh-0: none;
+  --oz-sh-1: 0 1px 0 rgba(31,29,27,0.04), 0 1px 2px rgba(31,29,27,0.04);
+  --oz-sh-2: 0 1px 2px rgba(31,29,27,0.06), 0 4px 12px rgba(31,29,27,0.05);
+  --oz-sh-3: 0 4px 8px rgba(31,29,27,0.06), 0 16px 32px rgba(31,29,27,0.08);
+  --oz-sh-focus: 0 0 0 3px rgba(35,48,86,0.22);
+  --oz-sh-focus-ochre: 0 0 0 3px rgba(232,163,61,0.28);
+
+  /* === Motion === */
+  --oz-ease: cubic-bezier(.2,.7,.3,1);
+  --oz-dur-fast: 120ms;
+  --oz-dur-base: 200ms;
+  --oz-dur-slow: 320ms;
+
+  /* === Layout === */
+  --oz-nav-w: 240px;
+  --oz-header-h: 56px;
+}
+
+/* === Base === */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--oz-sand);
+}
+
+.oz {
+  font-family: var(--oz-font-sans);
+  color: var(--oz-ink);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-size: var(--oz-fs-body);
+  line-height: var(--oz-lh-normal);
+}
+.oz * { box-sizing: border-box; }
+
+.oz-display { font-family: var(--oz-font-serif); font-size: var(--oz-fs-display); line-height: var(--oz-lh-tight); letter-spacing: -0.02em; font-weight: 400; }
+.oz-h1 { font-family: var(--oz-font-serif); font-size: var(--oz-fs-h1); line-height: var(--oz-lh-tight); letter-spacing: -0.015em; font-weight: 400; }
+.oz-h2 { font-family: var(--oz-font-serif); font-size: var(--oz-fs-h2); line-height: var(--oz-lh-snug); letter-spacing: -0.01em; font-weight: 400; }
+.oz-h3 { font-family: var(--oz-font-sans); font-size: var(--oz-fs-h3); line-height: var(--oz-lh-snug); font-weight: 600; letter-spacing: -0.005em; }
+.oz-h4 { font-family: var(--oz-font-sans); font-size: var(--oz-fs-h4); line-height: var(--oz-lh-snug); font-weight: 600; }
+.oz-body { font-family: var(--oz-font-sans); font-size: var(--oz-fs-body); line-height: var(--oz-lh-normal); font-weight: 400; }
+.oz-sm { font-size: var(--oz-fs-sm); }
+.oz-xs { font-size: var(--oz-fs-xs); }
+.oz-micro { font-family: var(--oz-font-sans); font-size: var(--oz-fs-micro); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; }
+.oz-mono { font-family: var(--oz-font-mono); font-feature-settings: "tnum", "zero"; font-variant-numeric: tabular-nums; }
+.oz-num { font-variant-numeric: tabular-nums; }
+.oz-muted { color: var(--oz-ink-3); }
+.oz-dim { color: var(--oz-ink-4); }
+
+/* Dark surface helpers */
+.oz-on-navy { color: #F2EEE4; }
+.oz-on-navy .oz-muted { color: rgba(242,238,228,0.65); }
+.oz-on-navy .oz-dim { color: rgba(242,238,228,0.45); }

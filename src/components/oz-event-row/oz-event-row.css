@@ -1,0 +1,68 @@
+:host {
+  display: block;
+  font-family: var(--oz-font-sans);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--oz-line-2);
+}
+
+.date {
+  width: 54px;
+  text-align: center;
+}
+
+.oz-micro {
+  font-family: var(--oz-font-sans);
+  font-size: var(--oz-fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.date-m { color: var(--oz-ink-3); }
+.date-d {
+  font-family: var(--oz-font-serif);
+  font-size: 22px;
+  color: var(--oz-ink);
+  line-height: 1;
+}
+
+.bar {
+  width: 3px;
+  height: 32px;
+  border-radius: 2px;
+}
+.bar--forest  { background: var(--oz-forest); }
+.bar--navy    { background: var(--oz-navy); }
+.bar--ochre   { background: var(--oz-ochre); }
+.bar--success { background: var(--oz-success); }
+.bar--warn    { background: var(--oz-warning); }
+.bar--danger  { background: var(--oz-danger); }
+.bar--neutral { background: var(--oz-ink-4); }
+
+.content { flex: 1; }
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.product {
+  font-size: 13px;
+  color: var(--oz-ink);
+  font-weight: 500;
+}
+
+.amount {
+  font-family: var(--oz-font-mono);
+  font-size: 11px;
+  color: var(--oz-ink-3);
+  font-variant-numeric: tabular-nums;
+}

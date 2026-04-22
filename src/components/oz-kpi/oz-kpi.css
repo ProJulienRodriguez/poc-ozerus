@@ -1,0 +1,60 @@
+:host {
+  display: block;
+}
+
+.card {
+  background: var(--oz-white);
+  border: 1px solid var(--oz-line);
+  border-radius: var(--oz-r-2);
+  padding: 18px;
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: var(--oz-font-sans);
+}
+
+.label {
+  font-family: var(--oz-font-sans);
+  font-size: var(--oz-fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--oz-ink-3);
+}
+
+.value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.value {
+  font-family: var(--oz-font-mono);
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--oz-ink);
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  font-size: 14px;
+  color: var(--oz-ink-3);
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sub {
+  font-size: 12px;
+  color: var(--oz-ink-3);
+}
+
+.chart {
+  margin-top: auto;
+}
+.chart:empty { display: none; }

@@ -1,0 +1,31 @@
+:host {
+  box-sizing: border-box;
+}
+
+.chip {
+  border-radius: var(--oz-r-2);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: flex-end;
+  padding: 10px;
+  font-family: var(--oz-font-mono);
+  font-size: 11px;
+  box-sizing: border-box;
+}
+
+.meta {
+  margin-top: 6px;
+  font-family: var(--oz-font-sans);
+}
+
+.name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--oz-ink);
+}
+
+.label {
+  font-size: 11px;
+  color: var(--oz-ink-3);
+  font-family: var(--oz-font-mono);
+}

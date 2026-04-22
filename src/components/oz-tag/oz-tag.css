@@ -1,0 +1,55 @@
+:host {
+  display: inline-flex;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--oz-r-full);
+  border: 1px solid transparent;
+  font-family: var(--oz-font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.leading:empty { display: none; }
+
+/* neutral */
+.tag--neutral.tag--soft { background: var(--oz-line-2); color: var(--oz-ink-2); }
+.tag--neutral.tag--solid { background: var(--oz-ink); color: #FAF7F2; }
+.tag--neutral.tag--outline { background: transparent; color: var(--oz-ink-2); border-color: var(--oz-line); }
+
+/* forest */
+.tag--forest.tag--soft { background: var(--oz-forest-50); color: var(--oz-forest-700); }
+.tag--forest.tag--solid { background: var(--oz-forest); color: #FAF7F2; }
+.tag--forest.tag--outline { background: transparent; color: var(--oz-forest); border-color: var(--oz-forest-100); }
+
+/* navy */
+.tag--navy.tag--soft { background: var(--oz-mist-50); color: var(--oz-navy); }
+.tag--navy.tag--solid { background: var(--oz-navy); color: #FAF7F2; }
+.tag--navy.tag--outline { background: transparent; color: var(--oz-navy); border-color: var(--oz-mist); }
+
+/* ochre */
+.tag--ochre.tag--soft { background: var(--oz-ochre-100); color: var(--oz-ochre-700); }
+.tag--ochre.tag--solid { background: var(--oz-ochre); color: var(--oz-ink); }
+.tag--ochre.tag--outline { background: transparent; color: var(--oz-ochre-700); border-color: var(--oz-ochre-100); }
+
+/* success */
+.tag--success.tag--soft { background: var(--oz-success-soft); color: var(--oz-success); }
+.tag--success.tag--solid { background: var(--oz-success); color: #FAF7F2; }
+.tag--success.tag--outline { background: transparent; color: var(--oz-success); border-color: var(--oz-forest-100); }
+
+/* warn */
+.tag--warn.tag--soft { background: var(--oz-warning-soft); color: var(--oz-warning); }
+.tag--warn.tag--solid { background: var(--oz-warning); color: var(--oz-ink); }
+.tag--warn.tag--outline { background: transparent; color: var(--oz-warning); border-color: var(--oz-ochre-100); }
+
+/* danger */
+.tag--danger.tag--soft { background: var(--oz-danger-soft); color: var(--oz-danger); }
+.tag--danger.tag--solid { background: var(--oz-danger); color: #FAF7F2; }
+.tag--danger.tag--outline { background: transparent; color: var(--oz-danger); border-color: var(--oz-danger-soft); }

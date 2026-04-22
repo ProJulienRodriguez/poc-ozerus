@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="fr" class="oz">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ozerus DS — Storybook</title>
+    <link rel="stylesheet" href="/build/ozerus-ds.css" />
+    <script type="module" src="/build/ozerus-ds.esm.js"></script>
+    <script nomodule src="/build/ozerus-ds.js"></script>
+    <style>
+      html, body { height: 100%; margin: 0; }
+      body { background: var(--oz-sand); color: var(--oz-ink); font-family: var(--oz-font-sans); }
+
+      /* === Shell === */
+      .sb { display: grid; grid-template-columns: 260px 1fr; height: 100vh; }
+
+      /* Sidebar nav */
+      .sb-nav {
+        background: var(--oz-cream);
+        border-right: 1px solid var(--oz-line);
+        padding: 20px 14px;
+        overflow-y: auto;
+        display: flex; flex-direction: column; gap: 18px;
+      }
+      .sb-brand {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 4px 8px 10px;
+      }
+      .sb-brand-name {
+        font-family: var(--oz-font-serif); font-size: 22px;
+        color: var(--oz-ink); letter-spacing: -0.3px;
+      }
+      .sb-group { display: flex; flex-direction: column; gap: 2px; }
+      .sb-group-title {
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--oz-ink-4); font-weight: 500;
+        padding: 6px 10px 4px;
+      }
+      .sb-menu a {
+        display: block; padding: 6px 10px 6px 12px;
+        border-left: 2px solid transparent;
+        border-radius: var(--oz-r-2);
+        color: var(--oz-ink-2); font-size: 13px;
+        text-decoration: none; cursor: pointer;
+      }
+      .sb-menu a:hover { background: var(--oz-line-2); color: var(--oz-ink); }
+      .sb-menu a.active {
+        background: var(--oz-forest-50);
+        color: var(--oz-forest-700);
+        font-weight: 500;
+        border-left-color: var(--oz-forest);
+        padding-left: 10px;
+      }
+
+      /* Main */
+      .sb-main { overflow-y: auto; background: var(--oz-sand); }
+      .story { display: none; padding: 48px 56px 120px; max-width: 1200px; }
+      .story--active { display: block; }
+
+      .story-head { margin-bottom: 40px; border-bottom: 1px solid var(--oz-line); padding-bottom: 24px; }
+      .story-head .crumb {
+        font-family: var(--oz-font-sans);
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--oz-ink-3); font-weight: 500; margin-bottom: 12px;
+      }
+      .story-head h1 {
+        margin: 0; font-family: var(--oz-font-serif);
+        font-size: 40px; line-height: 1.1; letter-spacing: -0.015em; font-weight: 400;
+        color: var(--oz-ink);
+      }
+      .story-desc { color: var(--oz-ink-3); font-size: 15px; margin-top: 12px; max-width: 680px; line-height: 1.55; }
+
+      .canvas-group { margin-top: 40px; }
+      .canvas-group > h2 {
+        margin: 0 0 4px 0; font-family: var(--oz-font-sans);
+        font-size: 17px; font-weight: 600; color: var(--oz-ink); letter-spacing: -0.005em;
+      }
+      .canvas-group > .cg-desc { color: var(--oz-ink-3); font-size: 13px; margin-bottom: 16px; }
+      .canvas {
+        background: var(--oz-white);
+        border: 1px solid var(--oz-line);
+        border-radius: var(--oz-r-2);
+        padding: 32px;
+      }
+      .canvas--sand { background: var(--oz-sand); }
+      .canvas--cream { background: var(--oz-cream); }
+      .canvas--flush { padding: 0; }
+
+      .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+      .col { display: flex; flex-direction: column; gap: 16px; }
+      .stack-sm { display: flex; flex-direction: column; gap: 8px; }
+      .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+      .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+      .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+      .grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+
+      .preview-label {
+        font-size: 11px; color: var(--oz-ink-3); font-family: var(--oz-font-mono);
+        letter-spacing: 0.05em; text-transform: uppercase;
+      }
+      .sep { height: 1px; background: var(--oz-line-2); margin: 20px 0; }
+
+      /* Swatches grid for colors story */
+      .swatches { display: flex; flex-wrap: wrap; gap: 14px; }
+
+      /* Icons grid */
+      .icons-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+      }
+      .icon-cell {
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+        padding: 16px 12px; background: var(--oz-white);
+        border: 1px solid var(--oz-line); border-radius: var(--oz-r-2);
+        font-family: var(--oz-font-mono); font-size: 11px; color: var(--oz-ink-3);
+      }
+      .icon-cell:hover { background: var(--oz-cream); border-color: var(--oz-forest-100); }
+
+      /* Typography & spacing samples */
+      .type-row { display: flex; align-items: baseline; gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--oz-line-2); }
+      .type-row:last-child { border-bottom: none; }
+      .type-row .tag {
+        width: 140px; flex-shrink: 0;
+        color: var(--oz-ink-3); font-size: 11px; font-family: var(--oz-font-mono);
+      }
+      .spacing-row { display: flex; align-items: center; gap: 16px; padding: 6px 0; }
+      .spacing-row .tag { width: 180px; font-family: var(--oz-font-mono); font-size: 12px; color: var(--oz-ink-3); }
+      .spacing-bar { background: var(--oz-forest); height: 10px; border-radius: 2px; }
+
+      /* Props table */
+      .props { width: 100%; border-collapse: collapse; font-size: 13px; }
+      .props th, .props td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--oz-line-2); }
+      .props th { color: var(--oz-ink-3); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; background: var(--oz-cream); }
+      .props td code { font-family: var(--oz-font-mono); font-size: 12px; color: var(--oz-forest-700); background: var(--oz-forest-50); padding: 1px 6px; border-radius: 3px; }
+      .props td.desc { color: var(--oz-ink-2); }
+
+      /* Inline code snippet */
+      pre.code {
+        background: var(--oz-navy); color: #F2EEE4;
+        border-radius: var(--oz-r-2); padding: 18px 20px;
+        overflow-x: auto; font-family: var(--oz-font-mono); font-size: 12.5px; line-height: 1.6;
+      }
+
+      /* Shell preview (dashboard template) */
+      .shell-preview {
+        display: flex; height: 640px;
+        border: 1px solid var(--oz-line); border-radius: var(--oz-r-2); overflow: hidden;
+        background: var(--oz-sand);
+      }
+      .shell-main-preview { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+      .shell-body-preview { flex: 1; padding: 24px; overflow: auto; }
+
+      /* Avatar group demo */
+      .avatar-stack { display: inline-flex; }
+      .avatar-stack oz-avatar { margin-left: -8px; border: 2px solid var(--oz-white); border-radius: 50%; }
+      .avatar-stack oz-avatar:first-child { margin-left: 0; }
+    </style>
+  </head>
+  <body class="oz">
+    <div class="sb">
+      <!-- ═══════════════ SIDEBAR NAV ═══════════════ -->
+      <aside class="sb-nav">
+        <div class="sb-brand">
+          <span class="sb-brand-name">Ozerus</span>
+          <oz-tag tone="forest" variant="soft">DS v0.1</oz-tag>
+        </div>
+
+        <nav class="sb-menu">
+          <div class="sb-group">
+            <div class="sb-group-title">Get started</div>
+            <a data-story="introduction" href="#/introduction">Introduction</a>
+            <a data-story="install" href="#/install">Installation</a>
+          </div>
+
+          <div class="sb-group">
+            <div class="sb-group-title">Foundations</div>
+            <a data-story="colors" href="#/colors">Colors</a>
+            <a data-story="typography" href="#/typography">Typography</a>
+            <a data-story="spacing" href="#/spacing">Spacing</a>
+            <a data-story="radius-shadows" href="#/radius-shadows">Radius &amp; shadows</a>
+          </div>
+
+          <div class="sb-group">
+            <div class="sb-group-title">Primitives</div>
+            <a data-story="button" href="#/button">Button</a>
+            <a data-story="input" href="#/input">Input</a>
+            <a data-story="tag" href="#/tag">Tag</a>
+            <a data-story="avatar" href="#/avatar">Avatar</a>
+            <a data-story="icon" href="#/icon">Icon</a>
+            <a data-story="card" href="#/card">Card</a>
+            <a data-story="kpi" href="#/kpi">KPI</a>
+            <a data-story="sparkline" href="#/sparkline">Sparkline</a>
+            <a data-story="line-chart" href="#/line-chart">Line chart</a>
+          </div>
+
+          <div class="sb-group">
+            <div class="sb-group-title">Patterns</div>
+            <a data-story="forms" href="#/forms">Forms</a>
+            <a data-story="product-table" href="#/product-table">Product table</a>
+            <a data-story="sidebar" href="#/sidebar">Sidebar</a>
+            <a data-story="header" href="#/header">Header</a>
+            <a data-story="event-row" href="#/event-row">Event row</a>
+            <a data-story="empty-state" href="#/empty-state">Empty state</a>
+          </div>
+
+          <div class="sb-group">
+            <div class="sb-group-title">Templates</div>
+            <a data-story="dashboard" href="#/dashboard">Dashboard shell</a>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- ═══════════════ MAIN ═══════════════ -->
+      <main class="sb-main">
+
+        <!-- ───── Introduction ───── -->
+        <section class="story" data-story="introduction">
+          <div class="story-head">
+            <div class="crumb">Get started / Introduction</div>
+            <h1>Ozerus Design System</h1>
+            <p class="story-desc">Un langage visuel éditorial et data-friendly pour l'extranet Ozerus : gestionnaire d'actifs, produits structurés, reportings partenaires. Palette vert sapin, marine, bleu brume, ochre sur sable chaud — typographie Familjen Grotesk + JetBrains Mono.</p>
+          </div>
+          <div class="canvas-group">
+            <h2>Principes</h2>
+            <div class="grid-3">
+              <oz-card heading="Éditorial" padding="lg">
+                Hiérarchie typographique forte avec une serif pour les titres. Numéros en tabular-nums pour les données.
+              </oz-card>
+              <oz-card heading="Data-friendly" padding="lg">
+                Densité confortable, KPI avec sparklines, charts line simples, tables produits avec ISIN et valorisations.
+              </oz-card>
+              <oz-card heading="Light-first" padding="lg">
+                Sable chaud comme fond applicatif, crème pour les surfaces, marine pour les inversions ponctuelles.
+              </oz-card>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Installation ───── -->
+        <section class="story" data-story="install">
+          <div class="story-head">
+            <div class="crumb">Get started / Installation</div>
+            <h1>Installation</h1>
+            <p class="story-desc">Le design system est livré comme une collection de web components Stencil, consommables depuis n'importe quelle stack.</p>
+          </div>
+          <div class="canvas-group">
+            <h2>Vanilla HTML</h2>
+            <pre class="code">&lt;script type="module" src="node_modules/ozerus-ds/dist/ozerus-ds/ozerus-ds.esm.js"&gt;&lt;/script&gt;
+
+&lt;oz-button variant="primary"&gt;Action&lt;/oz-button&gt;</pre>
+          </div>
+          <div class="canvas-group">
+            <h2>Angular / React / Vue</h2>
+            <pre class="code">import { defineCustomElements } from 'ozerus-ds/loader';
+defineCustomElements();</pre>
+          </div>
+          <div class="canvas-group">
+            <h2>Tokens CSS</h2>
+            <p class="cg-desc">Les tokens sont injectés globalement par le loader et disponibles via <code>var(--oz-*)</code>. Ils percent nativement le shadow DOM.</p>
+            <pre class="code">.my-custom {
+  background: var(--oz-forest-50);
+  color: var(--oz-forest-700);
+  padding: var(--oz-s-4);
+  border-radius: var(--oz-r-2);
+  font-family: var(--oz-font-sans);
+}</pre>
+          </div>
+        </section>
+
+        <!-- ═════════════ FOUNDATIONS ═════════════ -->
+
+        <!-- ───── Colors ───── -->
+        <section class="story" data-story="colors">
+          <div class="story-head">
+            <div class="crumb">Foundations / Colors</div>
+            <h1>Colors</h1>
+            <p class="story-desc">Palette organisée en familles : marque (forest/navy/mist/ochre), neutres (ink/line/sand/cream), sémantique (success/warning/danger/info).</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Brand — Forest</h2>
+            <p class="cg-desc">Couleur primaire, boutons principaux, validations, succès.</p>
+            <div class="canvas"><div class="swatches">
+              <oz-swatch name="Forest" value="#233056" label="--oz-forest" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Forest 700" value="#1A2442" label="--oz-forest-700" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Forest 300" value="#6976A0" label="--oz-forest-300" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Forest 100" value="#D6DBE4" label="--oz-forest-100"></oz-swatch>
+              <oz-swatch name="Forest 50" value="#EBEEF3" label="--oz-forest-50"></oz-swatch>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Brand — Navy</h2>
+            <p class="cg-desc">Surfaces sombres, header en inversion, accents secondaires.</p>
+            <div class="canvas"><div class="swatches">
+              <oz-swatch name="Navy" value="#1B2A3E" label="--oz-navy" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Navy 700" value="#14202F" label="--oz-navy-700" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Navy 500" value="#2E4258" label="--oz-navy-500" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Navy 100" value="#C9D2DE" label="--oz-navy-100"></oz-swatch>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Brand — Mist</h2>
+            <p class="cg-desc">Accent bleu doux, tags navy en variant soft, états info.</p>
+            <div class="canvas"><div class="swatches">
+              <oz-swatch name="Mist" value="#BFD0DC" label="--oz-mist"></oz-swatch>
+              <oz-swatch name="Mist 200" value="#DCE6EE" label="--oz-mist-200"></oz-swatch>
+              <oz-swatch name="Mist 50" value="#EEF3F7" label="--oz-mist-50"></oz-swatch>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Brand — Ochre</h2>
+            <p class="cg-desc">Highlights, CTA premium, warnings doux.</p>
+            <div class="canvas"><div class="swatches">
+              <oz-swatch name="Ochre" value="#E8A33D" label="--oz-ochre"></oz-swatch>
+              <oz-swatch name="Ochre 700" value="#C8861F" label="--oz-ochre-700" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Ochre 100" value="#F7E4C2" label="--oz-ochre-100"></oz-swatch>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Neutrals — Ink & lines</h2>
+            <div class="canvas"><div class="swatches">
+              <oz-swatch name="Ink" value="#1F1D1B" label="--oz-ink" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Ink 2" value="#3C3A37" label="--oz-ink-2" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Ink 3" value="#6B6762" label="--oz-ink-3" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Ink 4" value="#9A958E" label="--oz-ink-4"></oz-swatch>
+              <oz-swatch name="Line" value="#E4DFD6" label="--oz-line"></oz-swatch>
+              <oz-swatch name="Line 2" value="#EFEAE0" label="--oz-line-2"></oz-swatch>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Neutrals — Surfaces</h2>
+            <div class="canvas"><div class="swatches">
+              <oz-swatch name="Sand" value="#F5F1EA" label="--oz-sand"></oz-swatch>
+              <oz-swatch name="Cream" value="#FAF7F2" label="--oz-cream"></oz-swatch>
+              <oz-swatch name="White" value="#FFFFFF" label="--oz-white"></oz-swatch>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Semantic</h2>
+            <div class="canvas"><div class="swatches">
+              <oz-swatch name="Success" value="#2F5849" label="--oz-success" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Success soft" value="#E4ECE6" label="--oz-success-soft"></oz-swatch>
+              <oz-swatch name="Warning" value="#C8861F" label="--oz-warning" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Warning soft" value="#F7E4C2" label="--oz-warning-soft"></oz-swatch>
+              <oz-swatch name="Danger" value="#A33B2E" label="--oz-danger" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Danger soft" value="#F1DFDA" label="--oz-danger-soft"></oz-swatch>
+              <oz-swatch name="Info" value="#1B2A3E" label="--oz-info" fg="#FAF7F2"></oz-swatch>
+              <oz-swatch name="Info soft" value="#DCE6EE" label="--oz-info-soft"></oz-swatch>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ───── Typography ───── -->
+        <section class="story" data-story="typography">
+          <div class="story-head">
+            <div class="crumb">Foundations / Typography</div>
+            <h1>Typography</h1>
+            <p class="story-desc">Deux familles : Familjen Grotesk pour tous les titres et l'UI, JetBrains Mono pour les données numériques (ISIN, valorisations, tabular-nums).</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Scale</h2>
+            <div class="canvas">
+              <div class="type-row"><span class="tag">display · 56px</span><span class="oz-display">Produits structurés</span></div>
+              <div class="type-row"><span class="tag">h1 · 40px</span><span class="oz-h1">Autocall Eurostoxx Q3</span></div>
+              <div class="type-row"><span class="tag">h2 · 28px</span><span class="oz-h2">Portefeuille Helios</span></div>
+              <div class="type-row"><span class="tag">h3 · 20px</span><span class="oz-h3">Valorisation hebdomadaire</span></div>
+              <div class="type-row"><span class="tag">h4 · 16px</span><span class="oz-h4">Encours sous gestion</span></div>
+              <div class="type-row"><span class="tag">body · 14px</span><span class="oz-body">L'extranet Ozerus centralise les reportings partenaires et la documentation produit.</span></div>
+              <div class="type-row"><span class="tag">sm · 13px</span><span class="oz-sm">Texte secondaire, légendes et métadonnées.</span></div>
+              <div class="type-row"><span class="tag">xs · 12px</span><span class="oz-xs">Hints sous les champs de formulaire.</span></div>
+              <div class="type-row"><span class="tag">micro · 11px</span><span class="oz-micro">Espace partenaire</span></div>
+              <div class="type-row"><span class="tag">mono · 14px</span><span class="oz-mono">FR0014001AB7 · 102,34 · +0,42%</span></div>
+            </div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Families</h2>
+            <div class="grid-2">
+              <oz-card heading="Familjen Grotesk" subheading="Titres, UI, body">
+                <div style="font-family: var(--oz-font-sans); font-size: 32px; line-height: 1.1;">Aa Bb Cc 1234</div>
+              </oz-card>
+              <oz-card heading="JetBrains Mono" subheading="Chiffres, ISIN">
+                <div style="font-family: var(--oz-font-mono); font-size: 32px; line-height: 1.1;">Aa Bb 1234</div>
+              </oz-card>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Spacing ───── -->
+        <section class="story" data-story="spacing">
+          <div class="story-head">
+            <div class="crumb">Foundations / Spacing</div>
+            <h1>Spacing</h1>
+            <p class="story-desc">Échelle géométrique basée sur 4px. Utiliser les tokens <code>--oz-s-*</code> pour toutes les marges, paddings et gaps.</p>
+          </div>
+          <div class="canvas-group">
+            <h2>Scale</h2>
+            <div class="canvas">
+              <div class="spacing-row"><span class="tag">--oz-s-1 (4px)</span><div class="spacing-bar" style="width: 4px;"></div></div>
+              <div class="spacing-row"><span class="tag">--oz-s-2 (8px)</span><div class="spacing-bar" style="width: 8px;"></div></div>
+              <div class="spacing-row"><span class="tag">--oz-s-3 (12px)</span><div class="spacing-bar" style="width: 12px;"></div></div>
+              <div class="spacing-row"><span class="tag">--oz-s-4 (16px)</span><div class="spacing-bar" style="width: 16px;"></div></div>
+              <div class="spacing-row"><span class="tag">--oz-s-5 (20px)</span><div class="spacing-bar" style="width: 20px;"></div></div>
+              <div class="spacing-row"><span class="tag">--oz-s-6 (24px)</span><div class="spacing-bar" style="width: 24px;"></div></div>
+              <div class="spacing-row"><span class="tag">--oz-s-8 (32px)</span><div class="spacing-bar" style="width: 32px;"></div></div>
+              <div class="spacing-row"><span class="tag">--oz-s-10 (40px)</span><div class="spacing-bar" style="width: 40px;"></div></div>
+              <div class="spacing-row"><span class="tag">--oz-s-12 (48px)</span><div class="spacing-bar" style="width: 48px;"></div></div>
+              <div class="spacing-row"><span class="tag">--oz-s-16 (64px)</span><div class="spacing-bar" style="width: 64px;"></div></div>
+              <div class="spacing-row"><span class="tag">--oz-s-20 (80px)</span><div class="spacing-bar" style="width: 80px;"></div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Radius & Shadows ───── -->
+        <section class="story" data-story="radius-shadows">
+          <div class="story-head">
+            <div class="crumb">Foundations / Radius &amp; Shadows</div>
+            <h1>Radius &amp; shadows</h1>
+            <p class="story-desc">Angles vifs (2–4px) pour le caractère éditorial. Ombres très légères, neutres, rarement utilisées.</p>
+          </div>
+          <div class="canvas-group">
+            <h2>Radius</h2>
+            <div class="canvas"><div class="row">
+              <div><div style="width: 80px; height: 80px; background: var(--oz-forest); border-radius: 0;"></div><div class="preview-label" style="margin-top: 8px;">r-0 · 0px</div></div>
+              <div><div style="width: 80px; height: 80px; background: var(--oz-forest); border-radius: 2px;"></div><div class="preview-label" style="margin-top: 8px;">r-1 · 2px</div></div>
+              <div><div style="width: 80px; height: 80px; background: var(--oz-forest); border-radius: 4px;"></div><div class="preview-label" style="margin-top: 8px;">r-2 · 4px</div></div>
+              <div><div style="width: 80px; height: 80px; background: var(--oz-forest); border-radius: 6px;"></div><div class="preview-label" style="margin-top: 8px;">r-3 · 6px</div></div>
+              <div><div style="width: 80px; height: 80px; background: var(--oz-forest); border-radius: 10px;"></div><div class="preview-label" style="margin-top: 8px;">r-4 · 10px</div></div>
+              <div><div style="width: 80px; height: 80px; background: var(--oz-forest); border-radius: 999px;"></div><div class="preview-label" style="margin-top: 8px;">r-full</div></div>
+            </div></div>
+          </div>
+          <div class="canvas-group">
+            <h2>Shadows</h2>
+            <div class="canvas canvas--cream"><div class="grid-3">
+              <div><div style="height: 80px; background: var(--oz-white); border-radius: 4px; box-shadow: none;"></div><div class="preview-label" style="margin-top: 12px;">sh-0 (none)</div></div>
+              <div><div style="height: 80px; background: var(--oz-white); border-radius: 4px; box-shadow: var(--oz-sh-1);"></div><div class="preview-label" style="margin-top: 12px;">sh-1</div></div>
+              <div><div style="height: 80px; background: var(--oz-white); border-radius: 4px; box-shadow: var(--oz-sh-2);"></div><div class="preview-label" style="margin-top: 12px;">sh-2</div></div>
+              <div><div style="height: 80px; background: var(--oz-white); border-radius: 4px; box-shadow: var(--oz-sh-3);"></div><div class="preview-label" style="margin-top: 12px;">sh-3</div></div>
+              <div><div style="height: 80px; background: var(--oz-white); border-radius: 4px; box-shadow: var(--oz-sh-focus);"></div><div class="preview-label" style="margin-top: 12px;">sh-focus (forest)</div></div>
+              <div><div style="height: 80px; background: var(--oz-white); border-radius: 4px; box-shadow: var(--oz-sh-focus-ochre);"></div><div class="preview-label" style="margin-top: 12px;">sh-focus-ochre</div></div>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ═════════════ PRIMITIVES ═════════════ -->
+
+        <!-- ───── Button ───── -->
+        <section class="story" data-story="button">
+          <div class="story-head">
+            <div class="crumb">Primitives / Button</div>
+            <h1>Button</h1>
+            <p class="story-desc">7 variants × 3 tailles. Slots <code>leading</code> et <code>trailing</code> pour les icônes. L'événement <code>click</code> bubble naturellement.</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>All variants</h2>
+            <p class="cg-desc">Les 7 variants alignés pour comparaison visuelle.</p>
+            <div class="canvas"><div class="row">
+              <oz-button variant="primary">Primary</oz-button>
+              <oz-button variant="secondary">Secondary</oz-button>
+              <oz-button variant="accent">Accent</oz-button>
+              <oz-button variant="outline">Outline</oz-button>
+              <oz-button variant="ghost">Ghost</oz-button>
+              <oz-button variant="soft">Soft</oz-button>
+              <oz-button variant="danger">Danger</oz-button>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Sizes</h2>
+            <div class="canvas"><div class="row">
+              <oz-button variant="primary" size="sm">Small</oz-button>
+              <oz-button variant="primary" size="md">Medium</oz-button>
+              <oz-button variant="primary" size="lg">Large</oz-button>
+              <div style="width: 24px;"></div>
+              <oz-button variant="outline" size="sm">Small</oz-button>
+              <oz-button variant="outline" size="md">Medium</oz-button>
+              <oz-button variant="outline" size="lg">Large</oz-button>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With leading icon</h2>
+            <div class="canvas"><div class="row">
+              <oz-button variant="primary"><oz-icon slot="leading" name="plus" size="14"></oz-icon>Nouveau reporting</oz-button>
+              <oz-button variant="secondary"><oz-icon slot="leading" name="download" size="14"></oz-icon>Exporter</oz-button>
+              <oz-button variant="outline"><oz-icon slot="leading" name="filter" size="14"></oz-icon>Filtrer</oz-button>
+              <oz-button variant="soft"><oz-icon slot="leading" name="check" size="14"></oz-icon>Validé</oz-button>
+              <oz-button variant="danger"><oz-icon slot="leading" name="x" size="14"></oz-icon>Supprimer</oz-button>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With trailing icon</h2>
+            <div class="canvas"><div class="row">
+              <oz-button variant="primary">Continuer<oz-icon slot="trailing" name="arrow-right" size="14"></oz-icon></oz-button>
+              <oz-button variant="outline">Options<oz-icon slot="trailing" name="arrow-down" size="14"></oz-icon></oz-button>
+              <oz-button variant="ghost">Télécharger<oz-icon slot="trailing" name="download" size="14"></oz-icon></oz-button>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Icon-only</h2>
+            <div class="canvas"><div class="row">
+              <oz-button variant="outline" size="sm"><oz-icon slot="leading" name="settings" size="14"></oz-icon></oz-button>
+              <oz-button variant="ghost" size="sm"><oz-icon slot="leading" name="more" size="16"></oz-icon></oz-button>
+              <oz-button variant="soft" size="sm"><oz-icon slot="leading" name="bell" size="14"></oz-icon></oz-button>
+              <oz-button variant="primary"><oz-icon slot="leading" name="plus" size="16"></oz-icon></oz-button>
+              <oz-button variant="accent"><oz-icon slot="leading" name="upload" size="16"></oz-icon></oz-button>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Disabled state</h2>
+            <div class="canvas"><div class="row">
+              <oz-button variant="primary" disabled>Primary</oz-button>
+              <oz-button variant="secondary" disabled>Secondary</oz-button>
+              <oz-button variant="outline" disabled>Outline</oz-button>
+              <oz-button variant="soft" disabled>Soft</oz-button>
+              <oz-button variant="danger" disabled>Danger</oz-button>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Props</h2>
+            <div class="canvas canvas--flush">
+              <table class="props">
+                <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td><code>variant</code></td><td><code>primary | secondary | accent | outline | ghost | soft | danger</code></td><td><code>primary</code></td><td class="desc">Style visuel.</td></tr>
+                  <tr><td><code>size</code></td><td><code>sm | md | lg</code></td><td><code>md</code></td><td class="desc">Hauteur 30 / 36 / 44px.</td></tr>
+                  <tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td class="desc">Désactive l'interaction.</td></tr>
+                  <tr><td><code>type</code></td><td><code>button | submit | reset</code></td><td><code>button</code></td><td class="desc">Type natif HTML.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Input ───── -->
+        <section class="story" data-story="input">
+          <div class="story-head">
+            <div class="crumb">Primitives / Input</div>
+            <h1>Input</h1>
+            <p class="story-desc">Champ texte avec label, hint, error. Slots <code>leading</code> / <code>trailing</code> pour icônes, unités, boutons d'action.</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Sizes</h2>
+            <div class="canvas"><div class="col" style="max-width: 420px;">
+              <oz-input size="sm" label="Small" placeholder="Placeholder small"></oz-input>
+              <oz-input size="md" label="Medium (default)" placeholder="Placeholder medium"></oz-input>
+              <oz-input size="lg" label="Large" placeholder="Placeholder large"></oz-input>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With label &amp; hint</h2>
+            <div class="canvas"><div class="grid-2">
+              <oz-input label="Email" placeholder="nom@cabinet.fr" hint="Utilisé pour les notifications"></oz-input>
+              <oz-input label="ISIN" placeholder="FR0014…" hint="12 caractères alphanumériques"></oz-input>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With leading icon</h2>
+            <div class="canvas"><div class="grid-2">
+              <oz-input label="Recherche" placeholder="ISIN, produit, client…">
+                <oz-icon slot="leading" name="search" size="14"></oz-icon>
+              </oz-input>
+              <oz-input label="Utilisateur" placeholder="Sélectionner">
+                <oz-icon slot="leading" name="users" size="14"></oz-icon>
+              </oz-input>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With trailing adornment</h2>
+            <div class="canvas"><div class="grid-2">
+              <oz-input label="Montant" placeholder="0,00" hint="Hors frais">
+                <span slot="trailing" class="oz-mono">€</span>
+              </oz-input>
+              <oz-input label="Coupon" placeholder="8,25">
+                <span slot="trailing" class="oz-mono">%</span>
+              </oz-input>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Both adornments</h2>
+            <div class="canvas"><div style="max-width: 420px;">
+              <oz-input label="Recherche globale" placeholder="ISIN, produit, client…" size="lg">
+                <oz-icon slot="leading" name="search" size="16"></oz-icon>
+                <oz-tag slot="trailing" tone="neutral" variant="soft">⌘K</oz-tag>
+              </oz-input>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Types</h2>
+            <div class="canvas"><div class="grid-2">
+              <oz-input label="text" type="text" placeholder="Texte libre"></oz-input>
+              <oz-input label="email" type="email" placeholder="nom@cabinet.fr"></oz-input>
+              <oz-input label="password" type="password" placeholder="••••••••"></oz-input>
+              <oz-input label="number" type="number" placeholder="0"></oz-input>
+              <oz-input label="search" type="search" placeholder="Rechercher"></oz-input>
+              <oz-input label="date" type="date"></oz-input>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>States — error</h2>
+            <div class="canvas"><div class="grid-2">
+              <oz-input label="ISIN" value="XX000INVALID" error hint="Code ISIN invalide : 12 caractères requis"></oz-input>
+              <oz-input label="Email" value="pas-un-email" error hint="Format d'email non valide"></oz-input>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>States — disabled</h2>
+            <div class="canvas"><div class="grid-2">
+              <oz-input label="Cabinet" value="Cabinet Helios" disabled hint="Lié à votre compte"></oz-input>
+              <oz-input label="Rôle" value="Gestionnaire" disabled></oz-input>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Props</h2>
+            <div class="canvas canvas--flush">
+              <table class="props">
+                <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td><code>label</code></td><td><code>string</code></td><td>—</td><td class="desc">Label en micro-caps au-dessus.</td></tr>
+                  <tr><td><code>placeholder</code></td><td><code>string</code></td><td>—</td><td class="desc">Texte d'invite.</td></tr>
+                  <tr><td><code>value</code></td><td><code>string</code></td><td><code>''</code></td><td class="desc">Valeur (mutable).</td></tr>
+                  <tr><td><code>hint</code></td><td><code>string</code></td><td>—</td><td class="desc">Aide sous le champ (ou message d'erreur si <code>error</code>).</td></tr>
+                  <tr><td><code>error</code></td><td><code>boolean</code></td><td><code>false</code></td><td class="desc">État erreur (rouge).</td></tr>
+                  <tr><td><code>size</code></td><td><code>sm | md | lg</code></td><td><code>md</code></td><td class="desc">Hauteur 32 / 38 / 44px.</td></tr>
+                  <tr><td><code>type</code></td><td><code>string</code></td><td><code>text</code></td><td class="desc">Type HTML natif.</td></tr>
+                  <tr><td><code>disabled</code></td><td><code>boolean</code></td><td><code>false</code></td><td class="desc">Désactive le champ.</td></tr>
+                </tbody>
+              </table>
+              <div style="padding: 16px 20px; border-top: 1px solid var(--oz-line-2);">
+                <div class="preview-label" style="margin-bottom: 8px;">Events</div>
+                <div style="font-size: 13px; color: var(--oz-ink-2);">
+                  <code>ozInput</code> — émis à chaque frappe (<code>CustomEvent&lt;string&gt;</code>)<br/>
+                  <code>ozChange</code> — émis au blur/change natif (<code>CustomEvent&lt;string&gt;</code>)
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Tag ───── -->
+        <section class="story" data-story="tag">
+          <div class="story-head">
+            <div class="crumb">Primitives / Tag</div>
+            <h1>Tag</h1>
+            <p class="story-desc">Badge compact. 7 tones × 3 variants = 21 combinaisons. Pill (radius full), taille unique 11px.</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Soft variant (default)</h2>
+            <p class="cg-desc">Pour les états de ligne de table, métadonnées de produit, filtres actifs.</p>
+            <div class="canvas"><div class="row">
+              <oz-tag tone="neutral">Neutre</oz-tag>
+              <oz-tag tone="forest">Validé</oz-tag>
+              <oz-tag tone="navy">Actif</oz-tag>
+              <oz-tag tone="ochre">Highlight</oz-tag>
+              <oz-tag tone="success">+4,2%</oz-tag>
+              <oz-tag tone="warn">En attente</oz-tag>
+              <oz-tag tone="danger">Échec</oz-tag>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Solid variant</h2>
+            <p class="cg-desc">Emphase forte, KPI, notifications critiques.</p>
+            <div class="canvas"><div class="row">
+              <oz-tag tone="neutral" variant="solid">Neutre</oz-tag>
+              <oz-tag tone="forest" variant="solid">Validé</oz-tag>
+              <oz-tag tone="navy" variant="solid">Actif</oz-tag>
+              <oz-tag tone="ochre" variant="solid">Highlight</oz-tag>
+              <oz-tag tone="success" variant="solid">Succès</oz-tag>
+              <oz-tag tone="warn" variant="solid">Warning</oz-tag>
+              <oz-tag tone="danger" variant="solid">Échec</oz-tag>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Outline variant</h2>
+            <p class="cg-desc">Pour les sous-jacents (SX5E, CAC, SPX) et les catégories neutres.</p>
+            <div class="canvas"><div class="row">
+              <oz-tag tone="neutral" variant="outline">SX5E</oz-tag>
+              <oz-tag tone="forest" variant="outline">CAC 40</oz-tag>
+              <oz-tag tone="navy" variant="outline">SPX</oz-tag>
+              <oz-tag tone="ochre" variant="outline">SMI</oz-tag>
+              <oz-tag tone="success" variant="outline">EU</oz-tag>
+              <oz-tag tone="warn" variant="outline">US</oz-tag>
+              <oz-tag tone="danger" variant="outline">Emerging</oz-tag>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With leading icon</h2>
+            <div class="canvas"><div class="row">
+              <oz-tag tone="success"><oz-icon slot="leading" name="check" size="10"></oz-icon>Validé</oz-tag>
+              <oz-tag tone="warn"><oz-icon slot="leading" name="bell" size="10"></oz-icon>À valider</oz-tag>
+              <oz-tag tone="danger"><oz-icon slot="leading" name="x" size="10"></oz-icon>Refusé</oz-tag>
+              <oz-tag tone="forest"><oz-icon slot="leading" name="trend-up" size="10"></oz-icon>+2,4%</oz-tag>
+              <oz-tag tone="danger"><oz-icon slot="leading" name="trend-down" size="10"></oz-icon>-1,08%</oz-tag>
+              <oz-tag tone="navy" variant="outline"><oz-icon slot="leading" name="shield" size="10"></oz-icon>MFA actif</oz-tag>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>In context</h2>
+            <div class="canvas canvas--sand">
+              <oz-card heading="Autocall Eurostoxx Q3" subheading="FR0014001AB7">
+                <div slot="head-end">
+                  <oz-tag tone="success"><oz-icon slot="leading" name="check" size="10"></oz-icon>Disponible</oz-tag>
+                </div>
+                <div class="row">
+                  <oz-tag tone="neutral" variant="outline">SX5E</oz-tag>
+                  <oz-tag tone="forest" variant="soft">5Y</oz-tag>
+                  <oz-tag tone="ochre" variant="soft">Coupon 8,25%</oz-tag>
+                  <oz-tag tone="navy" variant="soft">Protection 50%</oz-tag>
+                </div>
+              </oz-card>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Avatar ───── -->
+        <section class="story" data-story="avatar">
+          <div class="story-head">
+            <div class="crumb">Primitives / Avatar</div>
+            <h1>Avatar</h1>
+            <p class="story-desc">Initiales sur fond coloré. 5 tones cohérents avec la palette. Taille paramétrable en pixels.</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Tones</h2>
+            <div class="canvas"><div class="row" style="gap: 24px;">
+              <div style="text-align: center;"><oz-avatar name="Marie Laurent" tone="forest"></oz-avatar><div class="preview-label" style="margin-top: 8px;">forest</div></div>
+              <div style="text-align: center;"><oz-avatar name="Pierre Dubois" tone="navy"></oz-avatar><div class="preview-label" style="margin-top: 8px;">navy</div></div>
+              <div style="text-align: center;"><oz-avatar name="Claire Moreau" tone="mist"></oz-avatar><div class="preview-label" style="margin-top: 8px;">mist</div></div>
+              <div style="text-align: center;"><oz-avatar name="Julien Roy" tone="ochre"></oz-avatar><div class="preview-label" style="margin-top: 8px;">ochre</div></div>
+              <div style="text-align: center;"><oz-avatar name="Léa Simon" tone="sand"></oz-avatar><div class="preview-label" style="margin-top: 8px;">sand</div></div>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Sizes</h2>
+            <div class="canvas"><div class="row" style="align-items: flex-end; gap: 24px;">
+              <div style="text-align: center;"><oz-avatar name="AB" size="24" tone="forest"></oz-avatar><div class="preview-label" style="margin-top: 8px;">24</div></div>
+              <div style="text-align: center;"><oz-avatar name="AB" size="32" tone="forest"></oz-avatar><div class="preview-label" style="margin-top: 8px;">32 (default)</div></div>
+              <div style="text-align: center;"><oz-avatar name="AB" size="40" tone="forest"></oz-avatar><div class="preview-label" style="margin-top: 8px;">40</div></div>
+              <div style="text-align: center;"><oz-avatar name="AB" size="48" tone="forest"></oz-avatar><div class="preview-label" style="margin-top: 8px;">48</div></div>
+              <div style="text-align: center;"><oz-avatar name="AB" size="64" tone="forest"></oz-avatar><div class="preview-label" style="margin-top: 8px;">64</div></div>
+              <div style="text-align: center;"><oz-avatar name="AB" size="80" tone="forest"></oz-avatar><div class="preview-label" style="margin-top: 8px;">80</div></div>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Group (stacked)</h2>
+            <div class="canvas">
+              <div class="avatar-stack">
+                <oz-avatar name="Marie Laurent" tone="forest" size="32"></oz-avatar>
+                <oz-avatar name="Pierre Dubois" tone="navy" size="32"></oz-avatar>
+                <oz-avatar name="Claire Moreau" tone="mist" size="32"></oz-avatar>
+                <oz-avatar name="Julien Roy" tone="ochre" size="32"></oz-avatar>
+                <oz-avatar name="+8" tone="sand" size="32"></oz-avatar>
+              </div>
+            </div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With context</h2>
+            <div class="canvas canvas--cream">
+              <oz-card padding="sm" tone="default">
+                <div class="row">
+                  <oz-avatar name="Marie Laurent" size="40" tone="navy"></oz-avatar>
+                  <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: 500; color: var(--oz-ink);">Marie Laurent</div>
+                    <div style="font-size: 11px; color: var(--oz-ink-3);">Cabinet Helios · Gestionnaire senior</div>
+                  </div>
+                  <oz-tag tone="forest" variant="soft">actif</oz-tag>
+                </div>
+              </oz-card>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Icon ───── -->
+        <section class="story" data-story="icon">
+          <div class="story-head">
+            <div class="crumb">Primitives / Icon</div>
+            <h1>Icon</h1>
+            <p class="story-desc">23 glyphes stroke-based, inspirés d'un set éditorial. Taille et couleur paramétrables.</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>All glyphs</h2>
+            <div class="icons-grid">
+              <div class="icon-cell"><oz-icon name="dashboard" size="22"></oz-icon>dashboard</div>
+              <div class="icon-cell"><oz-icon name="products" size="22"></oz-icon>products</div>
+              <div class="icon-cell"><oz-icon name="portfolio" size="22"></oz-icon>portfolio</div>
+              <div class="icon-cell"><oz-icon name="reporting" size="22"></oz-icon>reporting</div>
+              <div class="icon-cell"><oz-icon name="doc" size="22"></oz-icon>doc</div>
+              <div class="icon-cell"><oz-icon name="calendar" size="22"></oz-icon>calendar</div>
+              <div class="icon-cell"><oz-icon name="bell" size="22"></oz-icon>bell</div>
+              <div class="icon-cell"><oz-icon name="search" size="22"></oz-icon>search</div>
+              <div class="icon-cell"><oz-icon name="filter" size="22"></oz-icon>filter</div>
+              <div class="icon-cell"><oz-icon name="plus" size="22"></oz-icon>plus</div>
+              <div class="icon-cell"><oz-icon name="arrow-down" size="22"></oz-icon>arrow-down</div>
+              <div class="icon-cell"><oz-icon name="arrow-right" size="22"></oz-icon>arrow-right</div>
+              <div class="icon-cell"><oz-icon name="check" size="22"></oz-icon>check</div>
+              <div class="icon-cell"><oz-icon name="x" size="22"></oz-icon>x</div>
+              <div class="icon-cell"><oz-icon name="download" size="22"></oz-icon>download</div>
+              <div class="icon-cell"><oz-icon name="upload" size="22"></oz-icon>upload</div>
+              <div class="icon-cell"><oz-icon name="settings" size="22"></oz-icon>settings</div>
+              <div class="icon-cell"><oz-icon name="users" size="22"></oz-icon>users</div>
+              <div class="icon-cell"><oz-icon name="logout" size="22"></oz-icon>logout</div>
+              <div class="icon-cell"><oz-icon name="more" size="22"></oz-icon>more</div>
+              <div class="icon-cell"><oz-icon name="trend-up" size="22"></oz-icon>trend-up</div>
+              <div class="icon-cell"><oz-icon name="trend-down" size="22"></oz-icon>trend-down</div>
+              <div class="icon-cell"><oz-icon name="shield" size="22"></oz-icon>shield</div>
+            </div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Sizes</h2>
+            <div class="canvas"><div class="row" style="align-items: center; gap: 32px;">
+              <div style="text-align: center;"><oz-icon name="dashboard" size="12"></oz-icon><div class="preview-label" style="margin-top: 8px;">12</div></div>
+              <div style="text-align: center;"><oz-icon name="dashboard" size="14"></oz-icon><div class="preview-label" style="margin-top: 8px;">14</div></div>
+              <div style="text-align: center;"><oz-icon name="dashboard" size="16"></oz-icon><div class="preview-label" style="margin-top: 8px;">16 (default)</div></div>
+              <div style="text-align: center;"><oz-icon name="dashboard" size="20"></oz-icon><div class="preview-label" style="margin-top: 8px;">20</div></div>
+              <div style="text-align: center;"><oz-icon name="dashboard" size="24"></oz-icon><div class="preview-label" style="margin-top: 8px;">24</div></div>
+              <div style="text-align: center;"><oz-icon name="dashboard" size="32"></oz-icon><div class="preview-label" style="margin-top: 8px;">32</div></div>
+              <div style="text-align: center;"><oz-icon name="dashboard" size="48"></oz-icon><div class="preview-label" style="margin-top: 8px;">48</div></div>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Colors</h2>
+            <div class="canvas"><div class="row" style="gap: 32px;">
+              <oz-icon name="shield" size="32" color="var(--oz-forest)"></oz-icon>
+              <oz-icon name="shield" size="32" color="var(--oz-navy)"></oz-icon>
+              <oz-icon name="shield" size="32" color="var(--oz-ochre)"></oz-icon>
+              <oz-icon name="shield" size="32" color="var(--oz-danger)"></oz-icon>
+              <oz-icon name="shield" size="32" color="var(--oz-ink-3)"></oz-icon>
+              <oz-icon name="shield" size="32" color="var(--oz-ink-4)"></oz-icon>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ───── Card ───── -->
+        <section class="story" data-story="card">
+          <div class="story-head">
+            <div class="crumb">Primitives / Card</div>
+            <h1>Card</h1>
+            <p class="story-desc">Conteneur neutre avec slot body et header/footer optionnels. 4 tones, 4 paddings, bordure solide/dashed/none.</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Default</h2>
+            <div class="canvas canvas--sand">
+              <oz-card>
+                Contenu simple : un paragraphe, du texte, ou n'importe quel enfant.
+              </oz-card>
+            </div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With heading</h2>
+            <div class="canvas canvas--sand"><div class="grid-2">
+              <oz-card heading="Encours sous gestion">
+                Montant total des positions en portefeuille, hors liquidités.
+              </oz-card>
+              <oz-card heading="Produits actifs" subheading="Référencés et commercialisables">
+                42 produits structurés actuellement disponibles pour vos clients.
+              </oz-card>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With footer</h2>
+            <div class="canvas canvas--sand">
+              <oz-card heading="Conformité MIFID II" subheading="Mise à jour requise">
+                <div>Votre questionnaire de profil investisseur date de plus de 12 mois. Une actualisation est nécessaire.</div>
+                <div slot="footer" class="row" style="justify-content: flex-end;">
+                  <oz-button variant="ghost" size="sm">Plus tard</oz-button>
+                  <oz-button variant="primary" size="sm">Mettre à jour</oz-button>
+                </div>
+              </oz-card>
+            </div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Paddings</h2>
+            <div class="canvas canvas--sand"><div class="grid-4">
+              <oz-card padding="none"><div style="padding: 8px; color: var(--oz-ink-3); font-size: 12px;">padding="none"</div></oz-card>
+              <oz-card padding="sm">padding="sm"</oz-card>
+              <oz-card padding="md">padding="md" (default)</oz-card>
+              <oz-card padding="lg">padding="lg"</oz-card>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Tones</h2>
+            <div class="canvas canvas--sand"><div class="grid-4">
+              <oz-card tone="default" heading="Default">Surface blanche standard.</oz-card>
+              <oz-card tone="cream" heading="Cream">Crème pour les zones secondaires.</oz-card>
+              <oz-card tone="sand" heading="Sand">Sable pour les zones désactivées.</oz-card>
+              <oz-card tone="navy" heading="Navy">Surface sombre en inversion.</oz-card>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Borders</h2>
+            <div class="canvas canvas--sand"><div class="grid-3">
+              <oz-card border="solid" heading="Solid">Bordure par défaut.</oz-card>
+              <oz-card border="dashed" heading="Dashed">Pour les empty states.</oz-card>
+              <oz-card border="none" elevated heading="None + elevated">Sans bordure, avec ombre.</oz-card>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Interactive</h2>
+            <p class="cg-desc">Hover : ombre et lift léger. Idéal pour les cards cliquables.</p>
+            <div class="canvas canvas--sand"><div class="grid-3">
+              <oz-card interactive heading="Nouveau reporting" subheading="Créer un reporting client">
+                <div slot="head-end"><oz-icon name="plus" size="16" color="var(--oz-ink-3)"></oz-icon></div>
+              </oz-card>
+              <oz-card interactive heading="Import de données" subheading="CSV / Excel / XML">
+                <div slot="head-end"><oz-icon name="upload" size="16" color="var(--oz-ink-3)"></oz-icon></div>
+              </oz-card>
+              <oz-card interactive heading="Paramètres" subheading="Cabinet &amp; utilisateurs">
+                <div slot="head-end"><oz-icon name="settings" size="16" color="var(--oz-ink-3)"></oz-icon></div>
+              </oz-card>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Props</h2>
+            <div class="canvas canvas--flush">
+              <table class="props">
+                <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr><td><code>heading</code></td><td><code>string</code></td><td>—</td><td class="desc">Titre en police serif.</td></tr>
+                  <tr><td><code>subheading</code></td><td><code>string</code></td><td>—</td><td class="desc">Sous-titre sous le heading.</td></tr>
+                  <tr><td><code>padding</code></td><td><code>none | sm | md | lg</code></td><td><code>md</code></td><td class="desc">Padding interne.</td></tr>
+                  <tr><td><code>tone</code></td><td><code>default | cream | sand | navy</code></td><td><code>default</code></td><td class="desc">Couleur de surface.</td></tr>
+                  <tr><td><code>border</code></td><td><code>solid | dashed | none</code></td><td><code>solid</code></td><td class="desc">Style de bordure.</td></tr>
+                  <tr><td><code>interactive</code></td><td><code>boolean</code></td><td><code>false</code></td><td class="desc">Hover/active states.</td></tr>
+                  <tr><td><code>elevated</code></td><td><code>boolean</code></td><td><code>false</code></td><td class="desc">Ombre sh-2, pas de bordure.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── KPI ───── -->
+        <section class="story" data-story="kpi">
+          <div class="story-head">
+            <div class="crumb">Primitives / KPI</div>
+            <h1>KPI</h1>
+            <p class="story-desc">Indicateur clé avec label, valeur principale en mono tabular, unité optionnelle, delta avec tone, et slot <code>chart</code> pour une sparkline.</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Basic</h2>
+            <div class="canvas canvas--sand"><div class="grid-4">
+              <oz-kpi label="Encours" value="284,6" unit="M€"></oz-kpi>
+              <oz-kpi label="Produits actifs" value="42"></oz-kpi>
+              <oz-kpi label="Coupon moyen" value="8,17" unit="%"></oz-kpi>
+              <oz-kpi label="Clients actifs" value="318"></oz-kpi>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With delta</h2>
+            <div class="canvas canvas--sand"><div class="grid-4">
+              <oz-kpi label="Encours" value="284,6" unit="M€" delta="+2,4%" delta-tone="success" sub="vs. trimestre"></oz-kpi>
+              <oz-kpi label="Nouveaux clients" value="12" delta="+3" delta-tone="success" sub="ce mois"></oz-kpi>
+              <oz-kpi label="Coupon moyen" value="8,17" unit="%" delta="-0,1pt" delta-tone="warn" sub="30j glissants"></oz-kpi>
+              <oz-kpi label="Produits sortis" value="4" delta="+2" delta-tone="danger" sub="vs. mois"></oz-kpi>
+            </div></div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>With sparkline</h2>
+            <div class="canvas canvas--sand"><div class="grid-4">
+              <oz-kpi label="Encours" value="284,6" unit="M€" delta="+2,4%" delta-tone="success" sub="vs. trimestre">
+                <oz-sparkline slot="chart" id="k-spark-1" w="200" h="40"></oz-sparkline>
+              </oz-kpi>
+              <oz-kpi label="Produits actifs" value="42" delta="+3" delta-tone="success" sub="ce mois">
+                <oz-sparkline slot="chart" id="k-spark-2" w="200" h="40" color="var(--oz-navy)"></oz-sparkline>
+              </oz-kpi>
+              <oz-kpi label="Coupon moyen" value="8,17" unit="%" delta="-0,1pt" delta-tone="warn">
+                <oz-sparkline slot="chart" id="k-spark-3" w="200" h="40" color="var(--oz-ochre-700)"></oz-sparkline>
+              </oz-kpi>
+              <oz-kpi label="Volatilité" value="14,2" unit="%" delta="+0,8pt" delta-tone="danger">
+                <oz-sparkline slot="chart" id="k-spark-4" w="200" h="40" color="var(--oz-danger)"></oz-sparkline>
+              </oz-kpi>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ───── Sparkline ───── -->
+        <section class="story" data-story="sparkline">
+          <div class="story-head">
+            <div class="crumb">Primitives / Sparkline</div>
+            <h1>Sparkline</h1>
+            <p class="story-desc">Micro-chart SVG. Data passable en propriété JS ou attribut JSON.</p>
+          </div>
+          <div class="canvas-group">
+            <h2>Sizes &amp; colors</h2>
+            <div class="canvas"><div class="col" style="gap: 24px;">
+              <div><div class="preview-label" style="margin-bottom: 6px;">Small · forest</div><oz-sparkline id="sp-1" w="120" h="30"></oz-sparkline></div>
+              <div><div class="preview-label" style="margin-bottom: 6px;">Medium · navy</div><oz-sparkline id="sp-2" w="200" h="40" color="var(--oz-navy)"></oz-sparkline></div>
+              <div><div class="preview-label" style="margin-bottom: 6px;">Large · ochre</div><oz-sparkline id="sp-3" w="320" h="60" color="var(--oz-ochre-700)"></oz-sparkline></div>
+              <div><div class="preview-label" style="margin-bottom: 6px;">Descending · danger</div><oz-sparkline id="sp-4" w="320" h="60" color="var(--oz-danger)"></oz-sparkline></div>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ───── Line chart ───── -->
+        <section class="story" data-story="line-chart">
+          <div class="story-head">
+            <div class="crumb">Primitives / Line chart</div>
+            <h1>Line chart</h1>
+            <p class="story-desc">Chart SVG minimal : multi-séries, grille, labels X et Y, option dashed + fill.</p>
+          </div>
+          <div class="canvas-group">
+            <h2>Single series</h2>
+            <div class="canvas"><oz-line-chart id="lc-single" w="760" h="240" y-labels='["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."]'></oz-line-chart></div>
+          </div>
+          <div class="canvas-group">
+            <h2>Multi series (valorisation + bench)</h2>
+            <div class="canvas"><oz-line-chart id="lc-multi" w="760" h="260" y-labels='["jan","fév","mar","avr","mai","juin","juil","août","sep","oct","nov","déc"]'></oz-line-chart></div>
+          </div>
+        </section>
+
+        <!-- ═════════════ PATTERNS ═════════════ -->
+
+        <!-- ───── Forms ───── -->
+        <section class="story" data-story="forms">
+          <div class="story-head">
+            <div class="crumb">Patterns / Forms</div>
+            <h1>Forms</h1>
+            <p class="story-desc">Assemblages des primitives <code>input</code>, <code>button</code>, <code>card</code> pour les formulaires courants.</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Login</h2>
+            <div class="canvas canvas--sand">
+              <div style="max-width: 420px;">
+                <oz-card heading="Connexion à l'extranet" subheading="Accédez à votre espace partenaire" padding="lg">
+                  <div class="col" style="gap: 16px;">
+                    <oz-input label="Email" type="email" placeholder="nom@cabinet.fr"></oz-input>
+                    <oz-input label="Mot de passe" type="password" placeholder="••••••••" hint="Oublié ? Contactez votre administrateur."></oz-input>
+                    <oz-button variant="primary" size="lg" style="width: 100%; justify-content: center;">
+                      Se connecter
+                      <oz-icon slot="trailing" name="arrow-right" size="14"></oz-icon>
+                    </oz-button>
+                    <div style="display: flex; align-items: center; gap: 8px; justify-content: center; padding-top: 8px;">
+                      <oz-icon name="shield" size="12" color="var(--oz-forest)"></oz-icon>
+                      <span style="font-size: 11px; color: var(--oz-ink-3);">Connexion sécurisée · MFA requis</span>
+                    </div>
+                  </div>
+                </oz-card>
+              </div>
+            </div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Profile / settings</h2>
+            <div class="canvas canvas--sand">
+              <oz-card heading="Informations cabinet" subheading="Coordonnées visibles par Ozerus">
+                <div class="grid-2" style="gap: 16px;">
+                  <oz-input label="Raison sociale" value="Cabinet Helios"></oz-input>
+                  <oz-input label="Numéro ORIAS" value="16002345"></oz-input>
+                  <oz-input label="Email de contact" type="email" value="contact@helios.fr"></oz-input>
+                  <oz-input label="Téléphone" type="tel" value="+33 1 45 67 89 01"></oz-input>
+                  <oz-input label="Adresse" value="12 rue de la Paix, 75002 Paris" style="grid-column: span 2;"></oz-input>
+                </div>
+                <div slot="footer" class="row" style="justify-content: space-between;">
+                  <span style="font-size: 11px; color: var(--oz-ink-3);">Dernière mise à jour : 14 mars 2026</span>
+                  <div class="row">
+                    <oz-button variant="ghost" size="sm">Annuler</oz-button>
+                    <oz-button variant="primary" size="sm">Enregistrer</oz-button>
+                  </div>
+                </div>
+              </oz-card>
+            </div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Filter bar</h2>
+            <div class="canvas canvas--sand">
+              <oz-card padding="sm">
+                <div class="row">
+                  <div style="flex: 1; min-width: 260px;">
+                    <oz-input size="sm" placeholder="Rechercher un ISIN, produit, client…">
+                      <oz-icon slot="leading" name="search" size="14"></oz-icon>
+                    </oz-input>
+                  </div>
+                  <oz-button variant="outline" size="sm"><oz-icon slot="leading" name="filter" size="14"></oz-icon>Filtres</oz-button>
+                  <oz-button variant="outline" size="sm"><oz-icon slot="leading" name="calendar" size="14"></oz-icon>12 derniers mois</oz-button>
+                  <oz-button variant="ghost" size="sm"><oz-icon slot="leading" name="download" size="14"></oz-icon>Exporter</oz-button>
+                </div>
+              </oz-card>
+            </div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Form with validation states</h2>
+            <div class="canvas canvas--sand">
+              <oz-card heading="Nouveau produit">
+                <div class="grid-2" style="gap: 16px;">
+                  <oz-input label="ISIN" placeholder="FR0014…" value="XX000INVALID" error hint="Code ISIN invalide : 12 caractères requis"></oz-input>
+                  <oz-input label="Nom commercial" placeholder="Autocall Eurostoxx Q3"></oz-input>
+                  <oz-input label="Sous-jacent">
+                    <oz-tag slot="trailing" tone="navy" variant="outline">SX5E</oz-tag>
+                  </oz-input>
+                  <oz-input label="Coupon" placeholder="0,00">
+                    <span slot="trailing" class="oz-mono">%</span>
+                  </oz-input>
+                  <oz-input label="Maturité" type="date"></oz-input>
+                  <oz-input label="Protection" placeholder="0,00">
+                    <span slot="trailing" class="oz-mono">%</span>
+                  </oz-input>
+                </div>
+                <div slot="footer" class="row" style="justify-content: flex-end;">
+                  <oz-button variant="ghost" size="sm">Annuler</oz-button>
+                  <oz-button variant="outline" size="sm">Brouillon</oz-button>
+                  <oz-button variant="primary" size="sm">
+                    <oz-icon slot="leading" name="check" size="14"></oz-icon>
+                    Publier
+                  </oz-button>
+                </div>
+              </oz-card>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Product table ───── -->
+        <section class="story" data-story="product-table">
+          <div class="story-head">
+            <div class="crumb">Patterns / Product table</div>
+            <h1>Product table</h1>
+            <p class="story-desc">Table de produits structurés : ISIN, nom, sous-jacent, coupon, maturité, protection, valorisation, delta. Rows paramétrables via prop <code>rows</code>.</p>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Default</h2>
+            <div class="canvas canvas--sand canvas--flush" style="padding: 32px;">
+              <oz-product-table></oz-product-table>
+            </div>
+          </div>
+
+          <div class="canvas-group">
+            <h2>Compact</h2>
+            <p class="cg-desc">Cell padding réduit pour les listes denses.</p>
+            <div class="canvas canvas--sand canvas--flush" style="padding: 32px;">
+              <oz-product-table compact></oz-product-table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Sidebar ───── -->
+        <section class="story" data-story="sidebar">
+          <div class="story-head">
+            <div class="crumb">Patterns / Sidebar</div>
+            <h1>Sidebar</h1>
+            <p class="story-desc">Navigation principale de l'extranet : espace partenaire + administration + user card.</p>
+          </div>
+          <div class="canvas-group">
+            <h2>Active: dashboard</h2>
+            <div class="canvas canvas--flush" style="height: 640px;">
+              <oz-sidebar active="dashboard"></oz-sidebar>
+            </div>
+          </div>
+          <div class="canvas-group">
+            <h2>Active: products</h2>
+            <div class="canvas canvas--flush" style="height: 640px;">
+              <oz-sidebar active="products"></oz-sidebar>
+            </div>
+          </div>
+          <div class="canvas-group">
+            <h2>Custom user</h2>
+            <div class="canvas canvas--flush" style="height: 640px;">
+              <oz-sidebar active="portfolio" user="Pierre Dubois" org="Helios Wealth"></oz-sidebar>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Header ───── -->
+        <section class="story" data-story="header">
+          <div class="story-head">
+            <div class="crumb">Patterns / Header</div>
+            <h1>Header</h1>
+            <p class="story-desc">Barre supérieure : titre, recherche globale, actions. Slot <code>actions</code> pour remplacer les boutons par défaut.</p>
+          </div>
+          <div class="canvas-group">
+            <h2>Default</h2>
+            <div class="canvas canvas--flush">
+              <oz-header></oz-header>
+            </div>
+          </div>
+          <div class="canvas-group">
+            <h2>Custom heading</h2>
+            <div class="canvas canvas--flush">
+              <oz-header heading="Portefeuille Helios" search-placeholder="Rechercher un client…" notification-count="0"></oz-header>
+            </div>
+          </div>
+          <div class="canvas-group">
+            <h2>Custom actions</h2>
+            <div class="canvas canvas--flush">
+              <oz-header heading="Administration utilisateurs">
+                <div slot="actions" class="row">
+                  <oz-button variant="ghost" size="sm"><oz-icon slot="leading" name="settings" size="15"></oz-icon></oz-button>
+                  <oz-button variant="primary" size="sm"><oz-icon slot="leading" name="plus" size="14"></oz-icon>Inviter un utilisateur</oz-button>
+                </div>
+              </oz-header>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Event row ───── -->
+        <section class="story" data-story="event-row">
+          <div class="story-head">
+            <div class="crumb">Patterns / Event row</div>
+            <h1>Event row</h1>
+            <p class="story-desc">Ligne d'événement pour timeline produit ou portefeuille : date, type, produit, montant.</p>
+          </div>
+          <div class="canvas-group">
+            <h2>All tones</h2>
+            <div class="canvas">
+              <oz-event-row date-month="AVR" date-day="23" kind="Coupon" product="Autocall Eurostoxx Q3" amount="+2 412 €" tone="forest"></oz-event-row>
+              <oz-event-row date-month="AVR" date-day="18" kind="Remboursement" product="Phoenix Memoire 5Y" amount="+14 800 €" tone="navy"></oz-event-row>
+              <oz-event-row date-month="AVR" date-day="15" kind="Souscription" product="Athena Note SPX" amount="50 000 €" tone="ochre"></oz-event-row>
+              <oz-event-row date-month="AVR" date-day="11" kind="Barrière touchée" product="Reverse Convertible" amount="Protection activée" tone="warn"></oz-event-row>
+              <oz-event-row date-month="MAR" date-day="29" kind="Défaut" product="ABS Emerging 2027" amount="Perte partielle" tone="danger"></oz-event-row>
+              <oz-event-row date-month="MAR" date-day="22" kind="Information" product="Barrier Certificate" amount="Commentaire émetteur" tone="success"></oz-event-row>
+            </div>
+          </div>
+        </section>
+
+        <!-- ───── Empty state ───── -->
+        <section class="story" data-story="empty-state">
+          <div class="story-head">
+            <div class="crumb">Patterns / Empty state</div>
+            <h1>Empty state</h1>
+            <p class="story-desc">Écran vide avec icône, titre, corps, action optionnelle en slot.</p>
+          </div>
+          <div class="canvas-group">
+            <h2>With action</h2>
+            <div class="canvas canvas--sand">
+              <oz-empty-state icon="doc" heading="Aucun reporting généré" body="Créez votre premier reporting client pour commencer à suivre vos portefeuilles.">
+                <oz-button slot="action" variant="primary" size="sm">
+                  <oz-icon slot="leading" name="plus" size="14"></oz-icon>
+                  Nouveau reporting
+                </oz-button>
+              </oz-empty-state>
+            </div>
+          </div>
+          <div class="canvas-group">
+            <h2>Without action</h2>
+            <div class="canvas canvas--sand">
+              <oz-empty-state icon="search" heading="Aucun résultat" body="Aucun produit ne correspond à votre recherche. Essayez d'élargir les critères."></oz-empty-state>
+            </div>
+          </div>
+          <div class="canvas-group">
+            <h2>Different icons</h2>
+            <div class="canvas canvas--sand"><div class="grid-2">
+              <oz-empty-state icon="portfolio" heading="Aucun portefeuille" body="Importez un portefeuille pour démarrer."></oz-empty-state>
+              <oz-empty-state icon="users" heading="Aucun client" body="Ajoutez votre premier client pour voir ses positions."></oz-empty-state>
+              <oz-empty-state icon="calendar" heading="Agenda vide" body="Aucun événement sur la période sélectionnée."></oz-empty-state>
+              <oz-empty-state icon="bell" heading="Tout est calme" body="Aucune notification récente."></oz-empty-state>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- ═════════════ TEMPLATES ═════════════ -->
+
+        <!-- ───── Dashboard template ───── -->
+        <section class="story" data-story="dashboard">
+          <div class="story-head">
+            <div class="crumb">Templates / Dashboard shell</div>
+            <h1>Dashboard shell</h1>
+            <p class="story-desc">Assemblage complet : sidebar + header + contenu (KPIs, line chart, product table, events).</p>
+          </div>
+          <div class="canvas-group">
+            <div class="shell-preview">
+              <oz-sidebar active="dashboard"></oz-sidebar>
+              <div class="shell-main-preview">
+                <oz-header heading="Tableau de bord"></oz-header>
+                <div class="shell-body-preview">
+                  <div class="grid-4" style="margin-bottom: 20px;">
+                    <oz-kpi label="Encours" value="284,6" unit="M€" delta="+2,4%" delta-tone="success" sub="vs. trimestre">
+                      <oz-sparkline slot="chart" id="d-spark-1" w="200" h="36"></oz-sparkline>
+                    </oz-kpi>
+                    <oz-kpi label="Produits actifs" value="42" delta="+3" delta-tone="success" sub="ce mois">
+                      <oz-sparkline slot="chart" id="d-spark-2" w="200" h="36" color="var(--oz-navy)"></oz-sparkline>
+                    </oz-kpi>
+                    <oz-kpi label="Clients actifs" value="318" delta="+12" delta-tone="success" sub="vs. mois"></oz-kpi>
+                    <oz-kpi label="Coupon moyen" value="8,17" unit="%" delta="-0,1pt" delta-tone="warn"></oz-kpi>
+                  </div>
+                  <oz-card heading="Valorisation sur 12 mois" subheading="Encours global vs. benchmark" style="margin-bottom: 20px;">
+                    <oz-line-chart id="d-lc" w="920" h="220" y-labels='["jan","fév","mar","avr","mai","juin","juil","août","sep","oct","nov","déc"]'></oz-line-chart>
+                  </oz-card>
+                  <oz-product-table compact></oz-product-table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- ═══════════════ ROUTING + PROP WIRING ═══════════════ -->
+    <script>
+      const stories = document.querySelectorAll('.story');
+      const links = document.querySelectorAll('.sb-menu a');
+
+      function activate() {
+        const id = (location.hash || '#/introduction').replace('#/', '');
+        let matched = false;
+        stories.forEach(s => {
+          const on = s.dataset.story === id;
+          s.classList.toggle('story--active', on);
+          if (on) matched = true;
+        });
+        if (!matched) {
+          const intro = document.querySelector('[data-story="introduction"]');
+          if (intro) intro.classList.add('story--active');
+        }
+        links.forEach(a => a.classList.toggle('active', a.dataset.story === id));
+        document.querySelector('.sb-main').scrollTop = 0;
+      }
+      window.addEventListener('hashchange', activate);
+      if (!location.hash) location.hash = '#/introduction';
+      activate();
+
+      // === Wire complex props (arrays/objects) once custom elements are ready ===
+
+      const ASC = [220, 225, 232, 238, 244, 251, 258, 266, 270, 276, 280, 285];
+      const BENCH = [215, 220, 226, 230, 236, 240, 248, 254, 260, 263, 268, 274];
+      const DESC = [84, 82, 78, 74, 70, 65, 62, 60, 58, 56, 54, 52];
+      const WAVE = [32, 34, 36, 35, 38, 39, 41, 40, 42, 41, 42, 42];
+      const FLAT = [8.4, 8.35, 8.32, 8.3, 8.25, 8.2, 8.18, 8.17, 8.17, 8.17, 8.17, 8.17];
+      const VOL = [11, 12, 13, 12.5, 13.5, 14, 14.2, 13.8, 14, 14.2, 14.2, 14.2];
+
+      customElements.whenDefined('oz-sparkline').then(() => {
+        const assign = (id, data, color) => {
+          const el = document.getElementById(id);
+          if (el) { el.data = data; if (color) el.color = color; }
+        };
+        assign('k-spark-1', ASC);
+        assign('k-spark-2', WAVE, 'var(--oz-navy)');
+        assign('k-spark-3', FLAT, 'var(--oz-ochre-700)');
+        assign('k-spark-4', VOL, 'var(--oz-danger)');
+        assign('sp-1', ASC);
+        assign('sp-2', WAVE, 'var(--oz-navy)');
+        assign('sp-3', ASC, 'var(--oz-ochre-700)');
+        assign('sp-4', DESC, 'var(--oz-danger)');
+        assign('d-spark-1', ASC);
+        assign('d-spark-2', WAVE, 'var(--oz-navy)');
+      });
+
+      customElements.whenDefined('oz-line-chart').then(() => {
+        const single = document.getElementById('lc-single');
+        if (single) {
+          single.series = [{ data: ASC, color: '#233056' }];
+        }
+        const multi = document.getElementById('lc-multi');
+        if (multi) {
+          multi.series = [
+            { data: ASC, color: '#233056' },
+            { data: BENCH, color: '#6976A0', dashed: true, fill: false },
+          ];
+        }
+        const dashboard = document.getElementById('d-lc');
+        if (dashboard) {
+          dashboard.series = [
+            { data: ASC, color: '#233056' },
+            { data: BENCH, color: '#6976A0', dashed: true, fill: false },
+          ];
+        }
+      });
+    </script>
+  </body>
+</html>

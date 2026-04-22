@@ -1,0 +1,88 @@
+:host {
+  display: inline-flex;
+}
+
+.btn {
+  font-family: var(--oz-font-sans);
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: var(--oz-r-2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 120ms var(--oz-ease);
+  letter-spacing: -0.005em;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--oz-sh-focus);
+}
+
+.btn[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.label {
+  display: inline-block;
+}
+
+/* Sizes */
+.btn--sm { font-size: 13px; padding: 7px 12px; height: 30px; }
+.btn--md { font-size: 14px; padding: 9px 16px; height: 36px; }
+.btn--lg { font-size: 15px; padding: 12px 20px; height: 44px; }
+
+/* Variants */
+.btn--primary {
+  background: var(--oz-forest);
+  color: #FAF7F2;
+  border-color: var(--oz-forest);
+}
+.btn--primary:hover:not([disabled]) { background: var(--oz-forest-700); border-color: var(--oz-forest-700); }
+
+.btn--secondary {
+  background: var(--oz-navy);
+  color: #FAF7F2;
+  border-color: var(--oz-navy);
+}
+.btn--secondary:hover:not([disabled]) { background: var(--oz-navy-700); border-color: var(--oz-navy-700); }
+
+.btn--accent {
+  background: var(--oz-ochre);
+  color: var(--oz-ink);
+  border-color: var(--oz-ochre);
+}
+.btn--accent:hover:not([disabled]) { background: var(--oz-ochre-700); border-color: var(--oz-ochre-700); color: #FAF7F2; }
+.btn--accent:focus-visible { box-shadow: var(--oz-sh-focus-ochre); }
+
+.btn--outline {
+  background: transparent;
+  color: var(--oz-ink);
+  border-color: var(--oz-line);
+}
+.btn--outline:hover:not([disabled]) { background: var(--oz-cream); }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--oz-ink);
+  border-color: transparent;
+}
+.btn--ghost:hover:not([disabled]) { background: var(--oz-line-2); }
+
+.btn--soft {
+  background: var(--oz-forest-50);
+  color: var(--oz-forest-700);
+  border-color: transparent;
+}
+.btn--soft:hover:not([disabled]) { background: var(--oz-forest-100); }
+
+.btn--danger {
+  background: var(--oz-danger);
+  color: #FAF7F2;
+  border-color: var(--oz-danger);
+}
+.btn--danger:hover:not([disabled]) { filter: brightness(0.92); }

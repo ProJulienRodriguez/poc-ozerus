@@ -1,0 +1,43 @@
+{
+  "name": "ozerus-ds",
+  "version": "0.1.0",
+  "description": "Ozerus Design System — web components (Stencil)",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
+  "es2015": "dist/esm/index.mjs",
+  "es2017": "dist/esm/index.mjs",
+  "types": "dist/types/index.d.ts",
+  "collection": "dist/collection/collection-manifest.json",
+  "collection:main": "dist/collection/index.js",
+  "unpkg": "dist/ozerus-ds/ozerus-ds.esm.js",
+  "files": [
+    "dist/",
+    "loader/"
+  ],
+  "scripts": {
+    "build": "stencil build --docs",
+    "start": "stencil build --dev --watch --serve",
+    "test": "stencil test --spec --e2e",
+    "test.watch": "stencil test --spec --e2e --watchAll",
+    "generate": "stencil generate",
+    "predev": "kill-port 3001 3333 4000 || true",
+    "dev": "npm run build && concurrently -k -n \"DS,API,WEB\" -c \"magenta,cyan,green\" \"npm:dev:ds\" \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:ds": "stencil build --watch --serve",
+    "dev:api": "npm --prefix apps/api run dev",
+    "dev:web": "npm --prefix apps/web run dev",
+    "stop": "kill-port 3001 3333 4000 || true",
+    "build:all": "npm run build && npm --prefix apps/api run build && npm --prefix apps/web run build",
+    "install:all": "npm install && npm --prefix apps/api install && npm --prefix apps/web install",
+    "refresh:web-ds": "(cd apps/web && rm -rf node_modules/ozerus-ds && npm install ozerus-ds)",
+    "setup": "npm run install:all && npm run build"
+  },
+  "dependencies": {
+    "@stencil/core": "^4.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "concurrently": "^9.1.0",
+    "kill-port": "^2.0.1"
+  },
+  "license": "UNLICENSED"
+}
