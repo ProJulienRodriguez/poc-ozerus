@@ -1,0 +1,11 @@
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json* ./
+COPY stencil.config.ts tsconfig.json ./
+COPY src ./src
+RUN npm install --no-audit --no-fund
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/www /usr/share/nginx/html
+EXPOSE 80
