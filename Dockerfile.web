@@ -1,0 +1,30 @@
+# Build Next.js app + bundle local Stencil design system (ozerus-ds)
+FROM node:20-alpine AS deps
+WORKDIR /app
+
+# 1) Build ozerus-ds (racine) — fournit dist/ + loader/ consommés par apps/web
+COPY package.json package-lock.json* ./
+COPY stencil.config.ts tsconfig.json ./
+COPY src ./src
+RUN npm install --no-audit --no-fund
+RUN npm run build
+
+# 2) Install web deps (réfère ozerus-ds en file:../..)
+COPY apps/web/package.json apps/web/package-lock.json* ./apps/web/
+RUN npm --prefix apps/web install --no-audit --no-fund
+
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app /app
+COPY apps/web ./apps/web
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm --prefix apps/web run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3001
+COPY --from=builder /app /app
+EXPOSE 3001
+CMD ["npm", "--prefix", "apps/web", "run", "start"]

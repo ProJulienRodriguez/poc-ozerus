@@ -4,7 +4,7 @@ const nextConfig = {
   transpilePackages: ['ozerus-ds'],
   async rewrites() {
     return [
-      { source: '/api/:path*', destination: 'http://localhost:4000/api/:path*' },
+      { source: '/api/:path*', destination: `${process.env.API_PROXY_URL || 'http://localhost:4000'}/api/:path*` },
     ];
   },
 };

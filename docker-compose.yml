@@ -1,0 +1,29 @@
+name: poc-ozerus
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    networks: [default]
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - API_PROXY_URL=http://api:4000
+    depends_on:
+      - api
+    networks: [default, web]
+    restart: unless-stopped
+
+networks:
+  web:
+    external: true
