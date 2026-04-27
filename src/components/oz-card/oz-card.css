@@ -1,5 +1,6 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   font-family: var(--oz-font-sans);
   color: var(--oz-ink);
 }
@@ -10,6 +11,7 @@
   border: 1px solid var(--oz-line);
   display: flex;
   flex-direction: column;
+  flex: 1;
   transition: box-shadow 200ms var(--oz-ease), border-color 200ms var(--oz-ease), transform 200ms var(--oz-ease);
 }
 

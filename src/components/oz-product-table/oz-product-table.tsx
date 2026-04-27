@@ -66,19 +66,19 @@ export class OzProductTable {
             <tbody>
               {this.parsed.map((r, i) => (
                 <tr class={i < this.parsed.length - 1 ? 'row row--sep' : 'row'}>
-                  <td class="cell isin">{r.isin}</td>
-                  <td class="cell name">{r.name}</td>
-                  <td class="cell"><oz-tag tone="navy" variant="outline">{r.under}</oz-tag></td>
-                  <td class="cell right mono">{r.coupon}</td>
-                  <td class="cell right mono muted">{r.matur}</td>
-                  <td class="cell right mono muted">{r.prot}</td>
-                  <td class="cell right">
+                  <td class="cell isin" data-label="ISIN">{r.isin}</td>
+                  <td class="cell name" data-label="Produit">{r.name}</td>
+                  <td class="cell" data-label="Sous-jacent"><oz-tag tone="navy" variant="outline">{r.under}</oz-tag></td>
+                  <td class="cell right mono" data-label="Coupon">{r.coupon}</td>
+                  <td class="cell right mono muted" data-label="Maturité">{r.matur}</td>
+                  <td class="cell right mono muted" data-label="Protection">{r.prot}</td>
+                  <td class="cell right" data-label="Valorisation">
                     <div class="val-group">
                       <span class="mono val">{r.val}</span>
                       <span class="mono delta" style={{ color: this.deltaColor(r.tone) }}>{r.delta}</span>
                     </div>
                   </td>
-                  <td class="cell right">
+                  <td class="cell right chevron-cell">
                     <span class="chevron"><oz-icon name="arrow-right" size={14} /></span>
                   </td>
                 </tr>

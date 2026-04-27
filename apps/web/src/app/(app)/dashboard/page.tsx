@@ -9,7 +9,7 @@ export default function DashboardPage() {
       kpis={KPIS}
       chart={CHART}
       events={EVENTS}
-      products={PRODUCTS.slice(0, 5)}
+      products={PRODUCTS.slice(0, 7)}
     />
   );
 }

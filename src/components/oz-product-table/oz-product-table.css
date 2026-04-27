@@ -16,7 +16,7 @@
 
 table {
   width: 100%;
-  min-width: 640px;
+  min-width: 720px;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -44,6 +44,7 @@ thead tr {
   padding: var(--oz-cell-pad);
   color: var(--oz-ink-2);
   vertical-align: middle;
+  white-space: nowrap;
 }
 .cell.right { text-align: right; }
 .cell.isin { font-family: var(--oz-font-mono); font-size: 12px; white-space: nowrap; }
@@ -64,4 +65,52 @@ thead tr {
   color: var(--oz-ink-4);
   cursor: pointer;
   display: inline-flex;
+}
+
+/* === Mobile: convert table rows into stacked cards === */
+@media (max-width: 640px) {
+  .wrap { overflow-x: visible; border: none; background: transparent; }
+  table { min-width: 0; display: block; }
+  thead { display: none; }
+  tbody { display: flex; flex-direction: column; gap: 10px; }
+  tr.row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    column-gap: 12px;
+    row-gap: 6px;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--oz-white);
+    border: 1px solid var(--oz-line);
+    border-radius: var(--oz-r-2);
+  }
+  tr.row--sep { border-bottom: 1px solid var(--oz-line); }
+  .cell {
+    padding: 0;
+    text-align: left !important;
+    white-space: normal;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cell::before {
+    content: attr(data-label);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--oz-ink-3);
+    flex: 0 0 84px;
+  }
+  .cell.isin { grid-column: 1 / 2; }
+  .cell.isin::before { display: none; }
+  .cell.name { grid-column: 2 / 3; font-weight: 500; }
+  .cell.name::before { display: none; }
+  .chevron-cell { grid-column: 3 / 4; padding: 0; }
+  .chevron-cell::before { display: none; }
+  .cell:not(.isin):not(.name):not(.chevron-cell) {
+    grid-column: 1 / 4;
+    border-top: 1px dashed var(--oz-line-2);
+    padding-top: 6px;
+  }
+  .val-group { justify-content: flex-start; }
 }
