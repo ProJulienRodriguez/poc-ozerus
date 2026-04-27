@@ -372,6 +372,19 @@ img, svg, video { max-width: 100%; height: auto; }
   .split-main--equal { grid-template-columns: 1fr 1fr; }
 }
 
+@media (max-width: 640px) {
+  .notif-panel {
+    position: fixed !important;
+    top: 64px !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto !important;
+  }
+}
+
 .grid-auto {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));

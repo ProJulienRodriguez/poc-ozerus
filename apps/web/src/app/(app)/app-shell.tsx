@@ -110,6 +110,13 @@ export function AppShell({ user, children }: { user: AuthUser; children: React.R
     return () => window.removeEventListener('mousedown', onDown);
   }, []);
 
+  useEffect(() => {
+    if (!notifOpen) return;
+    const onScroll = () => setNotifOpen(false);
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true });
+    return () => window.removeEventListener('scroll', onScroll, { capture: true } as any);
+  }, [notifOpen]);
+
   const onExportCurrent = () => {
     const date = new Date().toISOString().slice(0, 10);
     if (activeId === 'products') {
@@ -312,7 +319,7 @@ function NotificationsPanel({
   onReadAll: () => void;
 }) {
   return (
-    <div style={{
+    <div className="notif-panel" style={{
       position: 'absolute', top: 'calc(100% + 6px)', right: 0,
       width: 360, maxWidth: 'calc(100vw - 32px)',
       background: 'var(--oz-white)', border: '1px solid var(--oz-line)',
