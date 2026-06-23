@@ -8,6 +8,29 @@ services:
     networks: [default, web]
     restart: unless-stopped
 
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-ozerus}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-ozerus}
+      - POSTGRES_DB=${POSTGRES_DB:-ozerus}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ozerus}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks: [default]
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
+    networks: [default]
+    restart: unless-stopped
+
   api:
     build:
       context: .
@@ -15,6 +38,20 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-ozerus}:${POSTGRES_PASSWORD:-ozerus}@db:5432/${POSTGRES_DB:-ozerus}?schema=public
+      - JWT_SECRET=${JWT_SECRET}
+      - MFA_ENC_KEY=${MFA_ENC_KEY:-}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.invalid}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - FRONT_ORIGIN=${FRONT_ORIGIN:-http://localhost:3001}
+      - SMTP_URL=${SMTP_URL:-smtp://mailhog:1025}
+      - MAIL_FROM=${MAIL_FROM:-Ozerus <no-reply@exemple.invalid>}
+      - COMMUNICATION_APP_NAME=${COMMUNICATION_APP_NAME:-Ozerus}
+      - COMMUNICATION_SUPPORT_EMAIL=${COMMUNICATION_SUPPORT_EMAIL:-support@exemple.invalid}
+      - COMMUNICATION_FALLBACK_LOCALE=${COMMUNICATION_FALLBACK_LOCALE:-fr}
+    depends_on:
+      db:
+        condition: service_healthy
     networks: [default]
     restart: unless-stopped
 
@@ -28,10 +65,15 @@ services:
       - API_PROXY_URL=http://api:4000
       - GATE_USER=${GATE_USER:-acelys}
       - GATE_PASS=${GATE_PASS:-Kp9#mVx2-tR7nQ4wL8bH}
+    ports:
+      - "3001:3001"
     depends_on:
       - api
     networks: [default, web]
     restart: unless-stopped
+
+volumes:
+  db-data:
 
 networks:
   web:

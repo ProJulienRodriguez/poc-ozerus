@@ -5,7 +5,7 @@ WORKDIR /app
 # 1) Build ozerus-ds (racine) — fournit dist/ + loader/ consommés par apps/web
 COPY package.json package-lock.json* ./
 COPY stencil.config.ts tsconfig.json ./
-COPY src ./src
+COPY design-system ./design-system
 RUN npm install --no-audit --no-fund
 RUN npm run build
 

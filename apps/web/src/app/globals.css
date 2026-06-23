@@ -1,9 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
-
-/* === Ozerus tokens (mirror of ozerus-ds/src/global/tokens.css) === */
-/* Breakpoints convention (valeurs dupliquées dans les @media — CSS vars non utilisables dans @media):
-   sm: 480px, md: 768px, lg: 1024px, xl: 1280px */
-:root {
+@import url("https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");:root {
   --oz-forest: #233056;
   --oz-forest-700: #1A2442;
   --oz-forest-300: #6976A0;

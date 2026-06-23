@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { PortfolioController } from './portfolio.controller';
-import { AuthModule } from '../auth/auth.module';
+import { IdentityModule } from '../modules/identity/identity.module';
 
 @Module({
-  imports: [AuthModule],
+  imports: [IdentityModule],
   controllers: [PortfolioController],
 })
 export class PortfolioModule {}

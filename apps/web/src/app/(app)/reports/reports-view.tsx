@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { Report } from '@/mocks/types';
 import { deleteReport, getReports } from '@/lib/local-store';
 import { useLocalStore } from '@/lib/use-local-store';
 import { downloadText, sanitizeFilename } from '@/lib/file-download';
+import { REPORT_STATUS_TONE } from '@/lib/ui/status-tone';
 
 const KIND_LABELS: Record<string, string> = {
   valorisation: 'Valorisation',
@@ -13,10 +15,7 @@ const KIND_LABELS: Record<string, string> = {
   conformite: 'Conformité',
 };
 
-const STATUS_TONE: Record<string, string> = { ready: 'success', pending: 'warn', failed: 'danger' };
-const STATUS_LABEL: Record<string, string> = { ready: 'Prêt', pending: 'En cours', failed: 'Échec' };
-
-function renderReportContent(r: Report): string {
+function renderReportContent(r: Report, statusLabel: string): string {
   return [
     `${r.title}`,
     ''.padEnd(r.title.length, '='),
@@ -27,7 +26,7 @@ function renderReportContent(r: Report): string {
     `Date        : ${r.createdAt}`,
     `Auteur      : ${r.author}`,
     `Taille      : ${r.sizeKb} Ko`,
-    `Statut      : ${STATUS_LABEL[r.status]}`,
+    `Statut      : ${statusLabel}`,
     '',
     'Corps',
     '-----',
@@ -37,38 +36,39 @@ function renderReportContent(r: Report): string {
 }
 
 export function ReportsView() {
+  const t = useTranslations('reports');
   const reports = useLocalStore(() => getReports());
 
   const onDownload = (r: Report) => {
-    downloadText(renderReportContent(r), `${sanitizeFilename(r.title)}.txt`);
+    downloadText(renderReportContent(r, t(`status.${r.status}`)), `${sanitizeFilename(r.title)}.txt`);
   };
   const onDelete = (r: Report) => {
-    if (confirm(`Supprimer « ${r.title} » ?`)) deleteReport(r.id);
+    if (confirm(t('confirmDelete', { title: r.title }))) deleteReport(r.id);
   };
 
   return (
     <div>
       <div className="page-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div className="oz-micro oz-muted">Production documentaire</div>
-          <h1 className="oz-h1">Reporting</h1>
+          <div className="oz-micro oz-muted">{t('eyebrow')}</div>
+          <h1 className="oz-h1">{t('title')}</h1>
           <p className="hint" style={{ marginTop: 8 }}>
-            {reports.length} reporting{reports.length > 1 ? 's' : ''} généré{reports.length > 1 ? 's' : ''} au total.
+            {t('countHint', { count: reports.length })}
           </p>
         </div>
         <Link href="/reports/new">
           <oz-button variant="primary">
             <oz-icon slot="leading" name="plus" size={14} />
-            Nouveau reporting
+            {t('newReport')}
           </oz-button>
         </Link>
       </div>
 
       {reports.length === 0 ? (
-        <oz-empty-state icon="doc" heading="Aucun reporting généré" body="Créez votre premier reporting client pour commencer.">
+        <oz-empty-state icon="doc" heading={t('empty.heading')} body={t('empty.body')}>
           <Link slot="action" href="/reports/new">
             <oz-button variant="primary" size="sm">
-              <oz-icon slot="leading" name="plus" size={14} />Nouveau reporting
+              <oz-icon slot="leading" name="plus" size={14} />{t('newReport')}
             </oz-button>
           </Link>
         </oz-empty-state>
@@ -78,7 +78,7 @@ export function ReportsView() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr style={{ background: 'var(--oz-cream)', borderBottom: '1px solid var(--oz-line)' }}>
-                  {['Titre', 'Type', 'Client', 'Période', 'Date', 'Auteur', 'Statut', ''].map(h => (
+                  {[t('table.title'), t('table.type'), t('table.client'), t('table.period'), t('table.date'), t('table.author'), t('table.status'), ''].map(h => (
                     <th key={h} style={{
                       textAlign: 'left', padding: '12px 16px',
                       fontWeight: 500, fontSize: 11,
@@ -102,15 +102,15 @@ export function ReportsView() {
                     <td style={{ padding: '14px 16px', fontFamily: 'var(--oz-font-mono)', fontSize: 12, color: 'var(--oz-ink-2)' }}>{r.createdAt}</td>
                     <td style={{ padding: '14px 16px', color: 'var(--oz-ink-2)' }}>{r.author}</td>
                     <td style={{ padding: '14px 16px' }}>
-                      <oz-tag tone={STATUS_TONE[r.status]} variant="soft">{STATUS_LABEL[r.status]}</oz-tag>
+                      <oz-tag tone={REPORT_STATUS_TONE[r.status]} variant="soft">{t(`status.${r.status}`)}</oz-tag>
                     </td>
                     <td style={{ padding: '14px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                       {r.status === 'ready' && (
-                        <oz-button variant="ghost" size="sm" onClick={() => onDownload(r)} title="Télécharger">
+                        <oz-button variant="ghost" size="sm" onClick={() => onDownload(r)} title={t('actions.download')}>
                           <oz-icon slot="leading" name="download" size={14} />
                         </oz-button>
                       )}
-                      <oz-button variant="ghost" size="sm" onClick={() => onDelete(r)} title="Supprimer">
+                      <oz-button variant="ghost" size="sm" onClick={() => onDelete(r)} title={t('actions.delete')}>
                         <oz-icon slot="leading" name="x" size={14} />
                       </oz-button>
                     </td>

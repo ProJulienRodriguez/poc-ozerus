@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TOKEN_COOKIE } from './lib/auth-constants';
+import { ACCESS_COOKIE } from './lib/auth-constants';
 
-const PROTECTED = ['/dashboard', '/products', '/reports', '/portfolio', '/users'];
+const PROTECTED = ['/dashboard', '/products', '/reports', '/portfolio', '/users', '/admin', '/security'];
 
 const GATE_USER = process.env.GATE_USER || 'acelys';
 const GATE_PASS = process.env.GATE_PASS || 'Kp9#mVx2-tR7nQ4wL8bH';
@@ -17,17 +17,11 @@ function basicAuthOk(req: NextRequest): boolean {
   }
 }
 
-function isValidToken(token: string | undefined): boolean {
-  if (!token) return false;
-  try {
-    const base64 = token.replace(/-/g, '+').replace(/_/g, '/');
-    const padded = base64 + '=='.slice(0, (4 - (base64.length % 4)) % 4);
-    const json = atob(padded);
-    const obj = JSON.parse(json);
-    return Boolean(obj?.id && obj?.email);
-  } catch {
-    return false;
-  }
+// L'access token est un JWT opaque signé par l'API : le middleware ne peut pas
+// le valider (pas de secret côté edge). On se contente de gater l'UI sur sa
+// présence ; l'API rejette tout token invalide/expiré côté serveur.
+function hasSession(req: NextRequest): boolean {
+  return Boolean(req.cookies.get(ACCESS_COOKIE)?.value);
 }
 
 export function middleware(req: NextRequest) {
@@ -40,26 +34,16 @@ export function middleware(req: NextRequest) {
 
   const { pathname } = req.nextUrl;
   const needsAuth = PROTECTED.some(p => pathname === p || pathname.startsWith(`${p}/`));
-  const tokenRaw = req.cookies.get(TOKEN_COOKIE)?.value;
-  const tokenValid = isValidToken(tokenRaw);
+  const authed = hasSession(req);
 
-  if (tokenRaw && !tokenValid) {
-    const url = req.nextUrl.clone();
-    url.pathname = '/login';
-    url.search = '';
-    const res = NextResponse.redirect(url);
-    res.cookies.delete(TOKEN_COOKIE);
-    return res;
-  }
-
-  if (needsAuth && !tokenValid) {
+  if (needsAuth && !authed) {
     const url = req.nextUrl.clone();
     url.pathname = '/login';
     url.searchParams.set('next', pathname);
     return NextResponse.redirect(url);
   }
 
-  if (pathname === '/login' && tokenValid) {
+  if (pathname === '/login' && authed) {
     const url = req.nextUrl.clone();
     url.pathname = '/dashboard';
     url.search = '';
@@ -68,7 +52,7 @@ export function middleware(req: NextRequest) {
 
   if (pathname === '/') {
     const url = req.nextUrl.clone();
-    url.pathname = tokenValid ? '/dashboard' : '/login';
+    url.pathname = authed ? '/dashboard' : '/login';
     return NextResponse.redirect(url);
   }
 

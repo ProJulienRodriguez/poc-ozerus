@@ -2,7 +2,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY stencil.config.ts tsconfig.json ./
-COPY src ./src
+COPY design-system ./design-system
 RUN npm install --no-audit --no-fund
 RUN npm run build
 

@@ -1,63 +1,78 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, type Dispatch, type SetStateAction } from 'react';
+import { useTranslations } from 'next-intl';
 import type { Product } from '@/mocks/types';
 import { downloadCsv } from '@/lib/csv-export';
+import { useProductFilters, type Filters, type Tone } from '@/lib/hooks/use-product-filters';
+import { useProductTable } from '@/lib/hooks/use-product-table';
 
-type Tone = Product['tone'] | 'all';
+const SELECT_STYLE = {
+  height: 34,
+  padding: '0 10px',
+  border: '1px solid var(--oz-line)',
+  borderRadius: 'var(--oz-r-2)',
+  background: 'var(--oz-white)',
+  fontFamily: 'inherit',
+  fontSize: 13,
+} as const;
 
-interface Filters {
-  minCoupon: number;
-  minProtection: number;
-  issuer: string;
-  tone: Tone;
+const FIELD_STYLE = { display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--oz-ink-3)' } as const;
+
+function ProductFilters({ filters, setFilters, issuers, onReset }: {
+  filters: Filters;
+  setFilters: Dispatch<SetStateAction<Filters>>;
+  issuers: string[];
+  onReset: () => void;
+}) {
+  const t = useTranslations('products');
+  const tc = useTranslations('common');
+
+  return (
+    <div style={{
+      marginTop: 14, paddingTop: 14,
+      borderTop: '1px solid var(--oz-line-2)',
+      display: 'grid', gap: 14,
+      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    }}>
+      <label style={FIELD_STYLE}>
+        {t('filters.minCoupon')} : <b style={{ color: 'var(--oz-ink)' }}>{filters.minCoupon}%</b>
+        <input type="range" min={0} max={12} step={0.5} value={filters.minCoupon}
+          onChange={e => setFilters(f => ({ ...f, minCoupon: Number(e.target.value) }))} />
+      </label>
+      <label style={FIELD_STYLE}>
+        {t('filters.minProtection')} : <b style={{ color: 'var(--oz-ink)' }}>{filters.minProtection}%</b>
+        <input type="range" min={0} max={100} step={5} value={filters.minProtection}
+          onChange={e => setFilters(f => ({ ...f, minProtection: Number(e.target.value) }))} />
+      </label>
+      <label style={FIELD_STYLE}>
+        {t('filters.issuer')}
+        <select value={filters.issuer} onChange={e => setFilters(f => ({ ...f, issuer: e.target.value }))} style={SELECT_STYLE}>
+          <option value="">{tc('all')}</option>
+          {issuers.map(i => <option key={i} value={i}>{i}</option>)}
+        </select>
+      </label>
+      <label style={FIELD_STYLE}>
+        {t('filters.performance')}
+        <select value={filters.tone} onChange={e => setFilters(f => ({ ...f, tone: e.target.value as Tone }))} style={SELECT_STYLE}>
+          <option value="all">{tc('allFeminine')}</option>
+          <option value="success">{t('performance.positive')}</option>
+          <option value="neutral">{t('performance.stable')}</option>
+          <option value="danger">{t('performance.negative')}</option>
+        </select>
+      </label>
+      <div style={{ display: 'flex', alignItems: 'end' }}>
+        <oz-button variant="ghost" size="sm" onClick={onReset}>{tc('reset')}</oz-button>
+      </div>
+    </div>
+  );
 }
 
-const INITIAL_FILTERS: Filters = { minCoupon: 0, minProtection: 0, issuer: '', tone: 'all' };
-
-const parsePct = (s: string) => Number.parseFloat(s.replace('%', '').replace(',', '.')) || 0;
-
 export function ProductsView({ products }: { products: Product[] }) {
-  const [q, setQ] = useState('');
-  const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
+  const t = useTranslations('products');
+  const { q, setQ, filters, setFilters, issuers, filtered, activeFilterCount, reset } = useProductFilters(products);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const tableRef = useRef<any>(null);
-  const router = useRouter();
-
-  const issuers = useMemo(() => Array.from(new Set(products.map(p => p.issuer))).sort(), [products]);
-
-  const filtered = useMemo(() => {
-    const n = q.trim().toLowerCase();
-    return products.filter(p => {
-      if (n && !(p.isin.toLowerCase().includes(n) || p.name.toLowerCase().includes(n) || p.under.toLowerCase().includes(n) || p.issuer.toLowerCase().includes(n))) return false;
-      if (parsePct(p.coupon) < filters.minCoupon) return false;
-      if (parsePct(p.prot) < filters.minProtection) return false;
-      if (filters.issuer && p.issuer !== filters.issuer) return false;
-      if (filters.tone !== 'all' && p.tone !== filters.tone) return false;
-      return true;
-    });
-  }, [q, products, filters]);
-
-  useEffect(() => {
-    if (tableRef.current) tableRef.current.rows = filtered;
-  }, [filtered]);
-
-  useEffect(() => {
-    const el = tableRef.current;
-    if (!el) return;
-    const onClick = (e: Event) => {
-      const target = e.target as HTMLElement;
-      const row = target.closest('tr');
-      if (!row) return;
-      const isin = row.querySelector<HTMLElement>('.cell.isin')?.textContent?.trim();
-      if (isin) router.push(`/products/${isin}`);
-    };
-    el.addEventListener('click', onClick);
-    return () => el.removeEventListener('click', onClick);
-  }, [router]);
-
-  const activeFilterCount = (filters.minCoupon > 0 ? 1 : 0) + (filters.minProtection > 0 ? 1 : 0) + (filters.issuer ? 1 : 0) + (filters.tone !== 'all' ? 1 : 0);
+  const tableRef = useProductTable(filtered);
 
   const onExport = () => {
     const rows = filtered.map(p => ({
@@ -71,10 +86,10 @@ export function ProductsView({ products }: { products: Product[] }) {
   return (
     <div>
       <div className="page-head">
-        <div className="oz-micro oz-muted">Catalogue</div>
-        <h1 className="oz-h1">Offre produits</h1>
+        <div className="oz-micro oz-muted">{t('eyebrow')}</div>
+        <h1 className="oz-h1">{t('title')}</h1>
         <p className="hint" style={{ marginTop: 8, maxWidth: 640 }}>
-          {filtered.length} produit{filtered.length > 1 ? 's' : ''} référencé{filtered.length > 1 ? 's' : ''}. Cliquez une ligne pour voir le détail.
+          {t('countHint', { count: filtered.length })}
         </p>
       </div>
 
@@ -83,7 +98,7 @@ export function ProductsView({ products }: { products: Product[] }) {
           <div style={{ flex: 1, minWidth: 260 }}>
             <oz-input
               size="sm"
-              placeholder="Rechercher un ISIN, produit, sous-jacent, émetteur…"
+              placeholder={t('searchPlaceholder')}
               value={q}
               onInput={(e: any) => setQ(e.target.value)}
             >
@@ -92,52 +107,15 @@ export function ProductsView({ products }: { products: Product[] }) {
           </div>
           <oz-button variant="outline" size="sm" onClick={() => setFiltersOpen(v => !v)}>
             <oz-icon slot="leading" name="filter" size={14} />
-            Filtres{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+            {t('filters.toggle')}{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
           </oz-button>
           <oz-button variant="outline" size="sm" onClick={onExport}>
-            <oz-icon slot="leading" name="download" size={14} />Exporter CSV
+            <oz-icon slot="leading" name="download" size={14} />{t('exportCsv')}
           </oz-button>
         </div>
 
         {filtersOpen && (
-          <div style={{
-            marginTop: 14, paddingTop: 14,
-            borderTop: '1px solid var(--oz-line-2)',
-            display: 'grid', gap: 14,
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          }}>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--oz-ink-3)' }}>
-              Coupon minimum : <b style={{ color: 'var(--oz-ink)' }}>{filters.minCoupon}%</b>
-              <input type="range" min={0} max={12} step={0.5} value={filters.minCoupon}
-                onChange={e => setFilters(f => ({ ...f, minCoupon: Number(e.target.value) }))} />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--oz-ink-3)' }}>
-              Protection min. : <b style={{ color: 'var(--oz-ink)' }}>{filters.minProtection}%</b>
-              <input type="range" min={0} max={100} step={5} value={filters.minProtection}
-                onChange={e => setFilters(f => ({ ...f, minProtection: Number(e.target.value) }))} />
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--oz-ink-3)' }}>
-              Emetteur
-              <select value={filters.issuer} onChange={e => setFilters(f => ({ ...f, issuer: e.target.value }))}
-                style={{ height: 34, padding: '0 10px', border: '1px solid var(--oz-line)', borderRadius: 'var(--oz-r-2)', background: 'var(--oz-white)', fontFamily: 'inherit', fontSize: 13 }}>
-                <option value="">Tous</option>
-                {issuers.map(i => <option key={i} value={i}>{i}</option>)}
-              </select>
-            </label>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--oz-ink-3)' }}>
-              Performance
-              <select value={filters.tone} onChange={e => setFilters(f => ({ ...f, tone: e.target.value as Tone }))}
-                style={{ height: 34, padding: '0 10px', border: '1px solid var(--oz-line)', borderRadius: 'var(--oz-r-2)', background: 'var(--oz-white)', fontFamily: 'inherit', fontSize: 13 }}>
-                <option value="all">Toutes</option>
-                <option value="success">Positive</option>
-                <option value="neutral">Stable</option>
-                <option value="danger">Négative</option>
-              </select>
-            </label>
-            <div style={{ display: 'flex', alignItems: 'end' }}>
-              <oz-button variant="ghost" size="sm" onClick={() => setFilters(INITIAL_FILTERS)}>Réinitialiser</oz-button>
-            </div>
-          </div>
+          <ProductFilters filters={filters} setFilters={setFilters} issuers={issuers} onReset={reset} />
         )}
       </oz-card>
 

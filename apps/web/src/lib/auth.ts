@@ -1,45 +1,46 @@
 import { cookies } from 'next/headers';
-import { AUTH_USERS } from '@/mocks/users';
 import type { AuthUser } from '@/mocks/types';
-import { TOKEN_COOKIE, MFA_CODE } from './auth-constants';
+import { ACCESS_COOKIE, REFRESH_COOKIE } from './auth-constants';
+import { apiFetch } from './server-api';
 
-export { TOKEN_COOKIE, MFA_CODE };
+export { ACCESS_COOKIE, REFRESH_COOKIE };
 export type { AuthUser };
 
-export function encodeToken(user: AuthUser): string {
-  return Buffer.from(JSON.stringify(user), 'utf8').toString('base64url');
+/** Forme renvoyée par l'API identity (GET /api/auth/me). */
+interface PublicUser {
+  id: string;
+  email: string;
+  name: string;
+  role: 'LEARNER' | 'TRAINER' | 'ADMIN';
+  initials: string;
 }
 
-export function decodeToken(token: string): AuthUser | null {
+/** Mappe l'utilisateur de l'API vers le modèle attendu par le front. */
+function toAuthUser(u: PublicUser): AuthUser {
+  return {
+    id: u.id,
+    email: u.email,
+    name: u.name,
+    org: 'Ozerus',
+    role: u.role === 'ADMIN' ? 'admin' : 'partner',
+  };
+}
+
+/** Présence d'une session (cookie d'accès ou de refresh). */
+export function hasSessionCookie(): boolean {
+  const jar = cookies();
+  return Boolean(jar.get(ACCESS_COOKIE)?.value || jar.get(REFRESH_COOKIE)?.value);
+}
+
+/** Récupère l'utilisateur courant auprès de l'API (cookies relayés). */
+export async function fetchMe(): Promise<AuthUser | null> {
+  if (!hasSessionCookie()) return null;
   try {
-    const json = Buffer.from(token, 'base64url').toString('utf8');
-    const u = JSON.parse(json);
-    if (!u?.id || !u?.email) return null;
-    return u as AuthUser;
+    const res = await apiFetch('/auth/me', { method: 'GET' });
+    if (!res.ok) return null;
+    const data = (await res.json()) as PublicUser;
+    return toAuthUser(data);
   } catch {
     return null;
   }
-}
-
-export function readToken(): string | null {
-  return cookies().get(TOKEN_COOKIE)?.value ?? null;
-}
-
-export async function fetchMe(token: string): Promise<AuthUser | null> {
-  return decodeToken(token);
-}
-
-export function resolveUser(email: string): AuthUser {
-  const normalized = email.trim().toLowerCase();
-  const existing = AUTH_USERS[normalized];
-  if (existing) return existing;
-  const base = normalized.split('@')[0] ?? 'utilisateur';
-  const name = base.replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  return {
-    id: `u-${Buffer.from(normalized).toString('base64url').slice(0, 10)}`,
-    email: normalized,
-    name: name || 'Utilisateur',
-    org: 'Cabinet POC',
-    role: 'partner',
-  };
 }

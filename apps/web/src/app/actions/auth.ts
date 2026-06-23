@@ -2,58 +2,96 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { TOKEN_COOKIE, MFA_CODE, encodeToken, resolveUser } from '@/lib/auth';
+import { getTranslations } from 'next-intl/server';
+import { apiFetch, forwardSetCookies } from '@/lib/server-api';
+import { ACCESS_COOKIE, REFRESH_COOKIE } from '@/lib/auth-constants';
 
-export interface LoginStartResult { ok: true; challengeId: string; hint: string }
-export interface LoginStartError { ok: false; message: string }
+export interface LoginMfaPending { ok: true; mfaRequired: true; mfaToken: string; hint: string }
+export interface LoginDone { ok: true; mfaRequired: false }
+export interface LoginError { ok: false; message: string }
+export type LoginResult = LoginMfaPending | LoginDone | LoginError;
 
-const CHALLENGE_COOKIE = 'oz_challenge';
-
-export async function startLoginAction(_: unknown, form: FormData): Promise<LoginStartResult | LoginStartError> {
-  const email = (form.get('email') ?? '').toString().trim();
-  const password = (form.get('password') ?? '').toString();
-  if (!email || !email.includes('@')) return { ok: false, message: 'Adresse email invalide.' };
-  if (password.length < 4) return { ok: false, message: 'Mot de passe trop court (min. 4).' };
-
-  const challengeId = `mfa-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-  cookies().set(CHALLENGE_COOKIE, JSON.stringify({ challengeId, email: email.toLowerCase(), exp: Date.now() + 5 * 60 * 1000 }), {
-    httpOnly: true,
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 5 * 60,
-  });
-  return { ok: true, challengeId, hint: `Code MFA envoyé (utilisez ${MFA_CODE} pour la démo)` };
+async function messageFrom(res: Response, fallback: string): Promise<string> {
+  try {
+    const data = await res.json();
+    const m = data?.message;
+    if (Array.isArray(m)) return m.join(' ');
+    if (typeof m === 'string') return m;
+  } catch {
+    /* corps non JSON */
+  }
+  return fallback;
 }
 
-export interface MfaResult { ok: true }
-export interface MfaError { ok: false; message: string }
+/** Étape 1 : identifiants. Ouvre la session ou demande le second facteur. */
+export async function startLoginAction(_: unknown, form: FormData): Promise<LoginResult> {
+  const t = await getTranslations('login');
+  const email = (form.get('email') ?? '').toString().trim();
+  const password = (form.get('password') ?? '').toString();
+  if (!email || !email.includes('@')) return { ok: false, message: t('invalidEmail') };
+  if (!password) return { ok: false, message: t('passwordRequired') };
 
-export async function completeMfaAction(_: unknown, form: FormData): Promise<MfaResult | MfaError> {
-  const challengeId = (form.get('challengeId') ?? '').toString();
-  const code = (form.get('code') ?? '').toString().trim();
-  if (!challengeId || !code) return { ok: false, message: 'Code manquant.' };
+  let res: Response;
+  try {
+    res = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  } catch {
+    return { ok: false, message: t('apiUnreachable') };
+  }
 
-  const raw = cookies().get(CHALLENGE_COOKIE)?.value;
-  if (!raw) return { ok: false, message: 'Session MFA introuvable.' };
-  let payload: { challengeId: string; email: string; exp: number };
-  try { payload = JSON.parse(raw); } catch { return { ok: false, message: 'Session MFA illisible.' }; }
-  if (payload.challengeId !== challengeId) return { ok: false, message: 'Session MFA ne correspond pas.' };
-  if (payload.exp < Date.now()) return { ok: false, message: 'Session MFA expirée.' };
-  if (code !== MFA_CODE) return { ok: false, message: 'Code MFA incorrect.' };
+  if (res.status === 401) return { ok: false, message: t('invalidCredentials') };
+  if (!res.ok) return { ok: false, message: await messageFrom(res, t('loginFailed')) };
 
-  const user = resolveUser(payload.email);
-  cookies().set(TOKEN_COOKIE, encodeToken(user), {
-    httpOnly: true,
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 60 * 12,
-  });
-  cookies().delete(CHALLENGE_COOKIE);
+  const data = await res.json();
+  if (data?.mfaRequired) {
+    return {
+      ok: true,
+      mfaRequired: true,
+      mfaToken: data.mfaToken,
+      hint: t('mfaPrompt'),
+    };
+  }
+
+  forwardSetCookies(res);
   redirect('/dashboard');
 }
 
-export async function logoutAction() {
-  cookies().delete(TOKEN_COOKIE);
-  cookies().delete(CHALLENGE_COOKIE);
+export interface MfaError { ok: false; message: string }
+
+export async function completeMfaAction(_: unknown, form: FormData): Promise<MfaError | void> {
+  const t = await getTranslations('login');
+  const mfaToken = (form.get('mfaToken') ?? '').toString();
+  const code = (form.get('code') ?? '').toString().trim();
+  if (!mfaToken) return { ok: false, message: t('mfaSessionLost') };
+  if (!code) return { ok: false, message: t('codeRequiredShort') };
+
+  let res: Response;
+  try {
+    res = await apiFetch('/auth/login/mfa', {
+      method: 'POST',
+      body: JSON.stringify({ mfaToken, totpCode: code }),
+    });
+  } catch {
+    return { ok: false, message: t('apiUnreachable') };
+  }
+
+  if (!res.ok) return { ok: false, message: await messageFrom(res, t('codeInvalid')) };
+
+  forwardSetCookies(res);
+  redirect('/dashboard');
+}
+
+/** Déconnexion : révoque la session côté API puis efface les cookies locaux. */
+export async function logoutAction(): Promise<void> {
+  try {
+    const res = await apiFetch('/auth/logout', { method: 'POST' });
+    forwardSetCookies(res);
+  } catch {
+    /* on efface localement quoi qu'il arrive */
+  }
+  cookies().delete(ACCESS_COOKIE);
+  cookies().delete(REFRESH_COOKIE);
   redirect('/login');
 }

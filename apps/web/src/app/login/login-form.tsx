@@ -1,48 +1,45 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useState, useTransition, type FormEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import { startLoginAction, completeMfaAction } from '@/app/actions/auth';
+import { useOzInput } from '@/lib/hooks/use-oz-input';
 
-type Step = 'credentials' | 'mfa';
-
-function useOzInput(defaultValue = ''): [string, (el: any) => void, (v: string) => void] {
-  const [value, setValue] = useState(defaultValue);
-  const ref = useRef<any>(null);
-  const setRef = (el: any) => {
-    if (ref.current === el) return;
-    if (ref.current) {
-      ref.current.removeEventListener('ozInput', ref.current._ozHandler);
-    }
-    ref.current = el;
-    if (el) {
-      const handler = (ev: CustomEvent<string>) => setValue(ev.detail);
-      el._ozHandler = handler;
-      el.addEventListener('ozInput', handler);
-      el.value = value;
-    }
-  };
-  return [value, setRef, setValue];
+/** Renvoie la clé i18n du premier champ invalide, ou `null` si les identifiants sont valides. */
+function credentialsErrorKey(email: string, password: string): string | null {
+  if (!email.trim()) return 'emailRequired';
+  if (!password) return 'passwordRequired';
+  return null;
 }
 
-export function LoginForm() {
-  const [step, setStep] = useState<Step>('credentials');
-  const [challengeId, setChallengeId] = useState<string>('');
-  const [hint, setHint] = useState<string>('');
+/** Applique le résultat de `startLoginAction` (erreur, ou passage à l'étape MFA). */
+function applyLoginResult(
+  res: Awaited<ReturnType<typeof startLoginAction>> | void,
+  email: string,
+  setError: (message: string) => void,
+  onMfaRequired: (email: string, token: string, hint: string) => void,
+) {
+  // Connexion sans MFA : la server action redirige (aucun retour ici).
+  if (!res) return;
+  if (!res.ok) { setError(res.message); return; }
+  if (res.mfaRequired) onMfaRequired(email, res.mfaToken, res.hint);
+}
+
+function CredentialsStep({ initialEmail, onMfaRequired }: {
+  initialEmail: string;
+  onMfaRequired: (email: string, token: string, hint: string) => void;
+}) {
+  const t = useTranslations('login');
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-
-  const [email, emailRef, setEmail] = useOzInput('marie.laurent@helios.fr');
+  const [email, emailRef] = useOzInput(initialEmail);
   const [password, passwordRef] = useOzInput('');
-  const [code, codeRef] = useOzInput('');
 
-  // Keep email value in sync with the underlying oz-input on remount
-  useEffect(() => { if ((emailRef as any).current) (emailRef as any).current.value = email; }, [email, emailRef]);
-
-  async function onCredentials(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    if (!email.trim()) { setError('Email requis.'); return; }
-    if (password.length < 4) { setError('Mot de passe trop court (min. 4 caractères).'); return; }
+    const errorKey = credentialsErrorKey(email, password);
+    if (errorKey) { setError(t(errorKey)); return; }
 
     const form = new FormData();
     form.set('email', email.trim());
@@ -50,66 +47,90 @@ export function LoginForm() {
 
     startTransition(async () => {
       const res = await startLoginAction(null, form);
-      if (!res.ok) { setError(res.message); return; }
-      setChallengeId(res.challengeId);
-      setHint(res.hint);
-      setStep('mfa');
+      applyLoginResult(res, email.trim(), setError, onMfaRequired);
     });
-  }
-
-  async function onMfa(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    if (code.trim().length < 6) { setError('Code à 6 chiffres requis.'); return; }
-
-    const form = new FormData();
-    form.set('challengeId', challengeId);
-    form.set('code', code.trim());
-
-    startTransition(async () => {
-      const res = await completeMfaAction(null, form);
-      if (res && 'ok' in res && res.ok === false) setError(res.message);
-    });
-  }
-
-  if (step === 'credentials') {
-    return (
-      <oz-card heading="Connexion à l'extranet" subheading="Accédez à votre espace partenaire" padding="lg">
-        <form onSubmit={onCredentials} className="stack" noValidate>
-          <oz-input ref={emailRef} label="Email" type="email" placeholder="nom@cabinet.fr">
-            <oz-icon slot="leading" name="users" size={14} />
-          </oz-input>
-          <oz-input ref={passwordRef} label="Mot de passe" type="password" placeholder="••••••••" hint="Minimum 4 caractères (démo)" />
-          {error && <div className="err">{error}</div>}
-          <oz-button type="submit" variant="primary" size="lg" style={{ width: '100%', justifyContent: 'center' }} disabled={pending || undefined}>
-            {pending ? 'Connexion…' : 'Continuer'}
-            <oz-icon slot="trailing" name="arrow-right" size={14} />
-          </oz-button>
-          <div className="row" style={{ justifyContent: 'center', gap: 6 }}>
-            <oz-icon name="shield" size={12} color="var(--oz-forest)" />
-            <span style={{ fontSize: 11, color: 'var(--oz-ink-3)' }}>Connexion sécurisée · MFA requis</span>
-          </div>
-        </form>
-      </oz-card>
-    );
   }
 
   return (
-    <oz-card heading="Vérification en deux étapes" subheading={email} padding="lg">
-      <form onSubmit={onMfa} className="stack" noValidate>
+    <oz-card heading={t('title')} subheading={t('subtitle')} padding="lg">
+      <form onSubmit={onSubmit} className="stack" noValidate>
+        <oz-input ref={emailRef} label={t('emailLabel')} type="email" placeholder={t('emailPlaceholder')}>
+          <oz-icon slot="leading" name="users" size={14} />
+        </oz-input>
+        <oz-input ref={passwordRef} label={t('passwordLabel')} type="password" placeholder="••••••••" hint={t('passwordHint')} />
+        {error && <div className="err">{error}</div>}
+        <oz-button type="submit" variant="primary" size="lg" style={{ width: '100%', justifyContent: 'center' }} disabled={pending || undefined}>
+          {pending ? t('connecting') : t('continue')}
+          <oz-icon slot="trailing" name="arrow-right" size={14} />
+        </oz-button>
+        <div className="row" style={{ justifyContent: 'center', gap: 6 }}>
+          <oz-icon name="shield" size={12} color="var(--oz-forest)" />
+          <span style={{ fontSize: 11, color: 'var(--oz-ink-3)' }}>{t('secureNote')}</span>
+        </div>
+      </form>
+    </oz-card>
+  );
+}
+
+function MfaStep({ email, mfaToken, hint, onBack }: {
+  email: string;
+  mfaToken: string;
+  hint: string;
+  onBack: () => void;
+}) {
+  const t = useTranslations('login');
+  const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+  const [code, codeRef] = useOzInput('');
+
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    if (code.trim().length < 6) { setError(t('codeRequired')); return; }
+
+    const form = new FormData();
+    form.set('mfaToken', mfaToken);
+    form.set('code', code.trim());
+
+    startTransition(async () => {
+      // `completeMfaAction` ne renvoie qu'en cas d'erreur (sinon redirection côté serveur).
+      const res = await completeMfaAction(null, form);
+      if (res) setError(res.message);
+    });
+  }
+
+  return (
+    <oz-card heading={t('mfaTitle')} subheading={email} padding="lg">
+      <form onSubmit={onSubmit} className="stack" noValidate>
         <div className="hint">{hint}</div>
-        <oz-input ref={codeRef} label="Code de sécurité" placeholder="123456" type="text" hint="6 chiffres reçus par email ou application" />
+        <oz-input ref={codeRef} label={t('codeLabel')} placeholder="123456" type="text" hint={t('codeHint')} />
         {error && <div className="err">{error}</div>}
         <div className="row" style={{ justifyContent: 'space-between' }}>
-          <button type="button" className="link-btn" onClick={() => { setStep('credentials'); setError(null); setEmail(email); }}>
-            ← Changer d'email
+          <button type="button" className="link-btn" onClick={onBack}>
+            {t('changeEmail')}
           </button>
           <oz-button type="submit" variant="primary" disabled={pending || undefined}>
-            {pending ? 'Vérification…' : 'Se connecter'}
+            {pending ? t('verifying') : t('submit')}
             <oz-icon slot="trailing" name="check" size={14} />
           </oz-button>
         </div>
       </form>
     </oz-card>
+  );
+}
+
+export function LoginForm() {
+  const [email, setEmail] = useState('admin@example.invalid');
+  const [mfa, setMfa] = useState<{ token: string; hint: string } | null>(null);
+
+  if (mfa) {
+    return <MfaStep email={email} mfaToken={mfa.token} hint={mfa.hint} onBack={() => setMfa(null)} />;
+  }
+
+  return (
+    <CredentialsStep
+      initialEmail={email}
+      onMfaRequired={(em, token, hint) => { setEmail(em); setMfa({ token, hint }); }}
+    />
   );
 }

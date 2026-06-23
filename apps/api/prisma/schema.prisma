@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// Contexte IDENTITY
+// ============================================================================
+
+enum Role {
+  LEARNER
+  TRAINER
+  ADMIN
+
+  @@map("identity_role")
+}
+
+enum UserStatus {
+  PENDING_CONFIRMATION // créé par un admin, en attente d'activation (définition du mot de passe)
+  ACTIVE
+  SUSPENDED
+
+  @@map("identity_user_status")
+}
+
+model User {
+  id                         String            @id @default(uuid())
+  email                      String            @unique
+  passwordHash               String? // null tant que PENDING_CONFIRMATION (mot de passe non encore défini)
+  name                       String
+  role                       Role              @default(LEARNER)
+  status                     UserStatus        @default(ACTIVE)
+  createdAt                  DateTime          @default(now())
+  // --- identity (auth CQS) ---
+  activatedAt                DateTime?
+  failedLoginAttempts        Int               @default(0)
+  lockedUntil                DateTime?
+  mfaEnabled                 Boolean           @default(false)
+  mfaSecretEnc               String? // secret TOTP chiffré (AES-256-GCM)
+  sessionsValidAfter         DateTime? // « déconnexion partout » : tout token émis avant est invalide
+  // Tokens d'activation / réinitialisation portés par le compte (hashés au repos).
+  confirmationTokenHash      String?
+  confirmationTokenExpiresAt DateTime?
+  resetTokenHash             String?
+  resetTokenExpiresAt        DateTime?
+  trustedDevices             TrustedDevice[]
+  recoveryCodes              MfaRecoveryCode[]
+  auditLogs                  AuthAuditLog[]
+  invitesCreated             Invite[]
+
+  @@index([confirmationTokenHash])
+  @@index([resetTokenHash])
+  @@map("identity_users")
+}
+
+/// Refresh tokens révoqués (hashés). Purgés après expiration par un cron.
+model RevokedToken {
+  tokenHash String   @id
+  expiresAt DateTime
+
+  @@map("identity_revoked_tokens")
+}
+
+/// Appareil de confiance autorisant à sauter le MFA (référence chiffrée côté cookie).
+model TrustedDevice {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  label     String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("identity_trusted_devices")
+}
+
+/// Codes de secours MFA (hashés), à usage unique.
+model MfaRecoveryCode {
+  id       String    @id @default(uuid())
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  codeHash String
+  usedAt   DateTime?
+
+  @@index([userId])
+  @@map("identity_mfa_recovery_codes")
+}
+
+/// Journal d'audit alimenté par les domain events (login, lock, reset…).
+model AuthAuditLog {
+  id        String   @id @default(uuid())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    String?
+  type      String
+  ipAddress String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@map("identity_auth_audit_logs")
+}
+
+model Invite {
+  id          String    @id @default(uuid())
+  email       String?
+  role        Role      @default(LEARNER)
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdById String
+  usedAt      DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@map("identity_invites")
+}
+
+// ============================================================================
+// Contexte COMMUNICATION
+// ============================================================================
+
+enum EmailTemplateStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+
+  @@map("communication_template_status")
+}
+
+enum EmailDispatchStatus {
+  SENT
+  FAILED
+
+  @@map("communication_dispatch_status")
+}
+
+// Une version (immuable une fois publiée) d'un template d'email, identifiée par
+// son nom (snake_case) + numéro de version. Une seule PUBLISHED par nom à la fois.
+model EmailTemplateVersion {
+  id          String              @id @default(uuid())
+  name        String
+  version     Int                 @default(1)
+  status      EmailTemplateStatus @default(DRAFT)
+  publishedAt DateTime?
+  archivedAt  DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  bodies      EmailTemplateBody[]
+
+  @@unique([name, version])
+  @@index([name, status])
+  @@map("communication_template_versions")
+}
+
+// Corps par locale d'une version : sujet + MJML + état éditeur (blocs/samples) +
+// HTML compilé (mis en cache à la publication).
+model EmailTemplateBody {
+  id            String               @id @default(uuid())
+  version       EmailTemplateVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  versionId     String
+  locale        String
+  subject       String
+  bodyMjml      String
+  bodyState     Json?
+  variables     String[]
+  engineVersion Int                  @default(1)
+  compiledHtml  String?
+
+  @@unique([versionId, locale])
+  @@map("communication_template_bodies")
+}
+
+// Journal (append-only) des tentatives d'envoi : audit + historique admin.
+model EmailDispatch {
+  id              String              @id @default(uuid())
+  templateName    String
+  templateVersion Int
+  locale          String
+  to              String              @map("to_address")
+  messageId       String?
+  status          EmailDispatchStatus
+  error           String?
+  correlationId   String?
+  dispatchedAt    DateTime            @default(now())
+
+  @@index([templateName, dispatchedAt])
+  @@index([to, dispatchedAt])
+  @@index([status, dispatchedAt])
+  @@map("communication_dispatch")
+}

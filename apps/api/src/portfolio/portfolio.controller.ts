@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt.guard';
+import { AccessTokenGuard } from '../modules/identity/presentation/guards/access-token.guard';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(AccessTokenGuard)
 @Controller('portfolio')
 export class PortfolioController {
   @Get()

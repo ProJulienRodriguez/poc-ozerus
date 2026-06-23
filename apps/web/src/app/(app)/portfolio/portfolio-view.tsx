@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import type { PortfolioPosition, PortfolioSummary } from '@/mocks/types';
 import { PRODUCTS } from '@/mocks/products';
 import { downloadCsv } from '@/lib/csv-export';
@@ -8,6 +9,7 @@ import { downloadCsv } from '@/lib/csv-export';
 const fmtEur = (n: number) => new Intl.NumberFormat('fr-FR').format(n);
 
 export function PortfolioView({ summary }: { summary: PortfolioSummary }) {
+  const t = useTranslations('portfolio');
   const [selected, setSelected] = useState<PortfolioPosition | null>(null);
 
   const onExport = () => {
@@ -23,19 +25,19 @@ export function PortfolioView({ summary }: { summary: PortfolioSummary }) {
     <div>
       <div className="page-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div className="oz-micro oz-muted">Analyse globale</div>
-          <h1 className="oz-h1">Portefeuilles</h1>
+          <div className="oz-micro oz-muted">{t('eyebrow')}</div>
+          <h1 className="oz-h1">{t('title')}</h1>
         </div>
         <oz-button variant="outline" size="sm" onClick={onExport}>
-          <oz-icon slot="leading" name="download" size={14} />Exporter CSV
+          <oz-icon slot="leading" name="download" size={14} />{t('exportCsv')}
         </oz-button>
       </div>
       <div className="grid-3" style={{ marginBottom: 20 }}>
-        <oz-kpi label="Encours total" value={fmtEur(Math.round(summary.totalAum / 1e6 * 10) / 10)} unit="M€" sub="Sous gestion" />
-        <oz-kpi label="Clients" value={String(summary.clients)} sub="Actifs ce mois" />
-        <oz-kpi label="Coupon moyen" value={summary.avgCoupon.toFixed(2)} unit="%" sub="Toutes positions" />
+        <oz-kpi label={t('kpis.totalAum')} value={fmtEur(Math.round(summary.totalAum / 1e6 * 10) / 10)} unit="M€" sub={t('kpis.totalAumSub')} />
+        <oz-kpi label={t('kpis.clients')} value={String(summary.clients)} sub={t('kpis.clientsSub')} />
+        <oz-kpi label={t('kpis.avgCoupon')} value={summary.avgCoupon.toFixed(2)} unit="%" sub={t('kpis.avgCouponSub')} />
       </div>
-      <oz-card heading="Positions par client" subheading={`${summary.positions.length} positions`} padding="none">
+      <oz-card heading={t('positionsHeading')} subheading={t('positionsCount', { count: summary.positions.length })} padding="none">
         <div style={{ padding: '8px 0' }}>
           {summary.positions.map((p, i) => (
             <button
@@ -60,7 +62,7 @@ export function PortfolioView({ summary }: { summary: PortfolioSummary }) {
               <oz-avatar name={p.client} size={36} tone="forest" />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 500 }}>{p.client}</div>
-                <div style={{ fontSize: 11, color: 'var(--oz-ink-3)' }}>{p.products} produit{p.products > 1 ? 's' : ''}</div>
+                <div style={{ fontSize: 11, color: 'var(--oz-ink-3)' }}>{t('productCount', { count: p.products })}</div>
               </div>
               <div className="oz-mono" style={{ fontSize: 15, fontWeight: 500 }}>{fmtEur(p.aum)} €</div>
               <oz-icon name="arrow-right" size={14} color="var(--oz-ink-4)" />
@@ -75,6 +77,8 @@ export function PortfolioView({ summary }: { summary: PortfolioSummary }) {
 }
 
 function ClientDetailModal({ position, onClose }: { position: PortfolioPosition; onClose: () => void }) {
+  const t = useTranslations('portfolio');
+  const tc = useTranslations('common');
   const holdings = PRODUCTS.slice(0, position.products);
   const avgCoupon = holdings.reduce((acc, p) => acc + Number.parseFloat(p.coupon.replace('%', '').replace(',', '.')), 0) / (holdings.length || 1);
 
@@ -101,22 +105,22 @@ function ClientDetailModal({ position, onClose }: { position: PortfolioPosition;
           <oz-avatar name={position.client} size={44} tone="forest" />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 18, fontWeight: 500 }}>{position.client}</div>
-            <div style={{ fontSize: 12, color: 'var(--oz-ink-3)' }}>{position.products} produit{position.products > 1 ? 's' : ''} en portefeuille</div>
+            <div style={{ fontSize: 12, color: 'var(--oz-ink-3)' }}>{t('productCountInPortfolio', { count: position.products })}</div>
           </div>
-          <button type="button" onClick={onClose} aria-label="Fermer"
+          <button type="button" onClick={onClose} aria-label={tc('close')}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, color: 'var(--oz-ink-3)' }}>
             <oz-icon name="x" size={18} />
           </button>
         </div>
 
         <div style={{ padding: 24, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
-          <oz-kpi label="Encours" value={fmtEur(position.aum)} unit="€" />
-          <oz-kpi label="Produits détenus" value={String(position.products)} />
-          <oz-kpi label="Coupon moyen" value={avgCoupon.toFixed(2)} unit="%" />
+          <oz-kpi label={t('modal.aum')} value={fmtEur(position.aum)} unit="€" />
+          <oz-kpi label={t('modal.productsHeld')} value={String(position.products)} />
+          <oz-kpi label={t('modal.avgCoupon')} value={avgCoupon.toFixed(2)} unit="%" />
         </div>
 
         <div style={{ padding: '0 24px 24px' }}>
-          <div className="oz-micro oz-muted" style={{ marginBottom: 8 }}>Positions détaillées</div>
+          <div className="oz-micro oz-muted" style={{ marginBottom: 8 }}>{t('modal.detailedPositions')}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {holdings.map(p => (
               <div key={p.isin} style={{

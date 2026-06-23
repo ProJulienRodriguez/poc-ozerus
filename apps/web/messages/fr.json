@@ -1,0 +1,323 @@
+{
+  "common": {
+    "loading": "Chargement…",
+    "loadError": "Erreur de chargement.",
+    "error": "Erreur.",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "reset": "Réinitialiser",
+    "all": "Tous",
+    "allFeminine": "Toutes"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "products": "Offre produits",
+    "portfolio": "Portefeuilles",
+    "reports": "Reporting",
+    "users": "Utilisateurs",
+    "communication": "Emails",
+    "security": "Sécurité"
+  },
+  "shell": {
+    "partnerSpace": "Espace partenaire",
+    "expandMenu": "Déplier le menu",
+    "collapseMenu": "Replier le menu",
+    "openMenu": "Ouvrir le menu",
+    "logout": "Se déconnecter",
+    "searchPlaceholder": "Rechercher un ISIN, produit, client…",
+    "noResults": "Aucun résultat pour « {query} ».",
+    "export": "Exporter",
+    "newReport": "Nouveau reporting",
+    "notifications": "Notifications",
+    "markAllRead": "Tout marquer lu",
+    "noNotifications": "Aucune notification.",
+    "searchKind": {
+      "product": "Produit",
+      "client": "Client",
+      "report": "Reporting",
+      "user": "Utilisateur"
+    }
+  },
+  "login": {
+    "title": "Connexion à l'extranet",
+    "subtitle": "Accédez à votre espace partenaire",
+    "emailLabel": "Email",
+    "emailPlaceholder": "nom@cabinet.fr",
+    "passwordLabel": "Mot de passe",
+    "passwordHint": "Minimum 4 caractères (démo)",
+    "continue": "Continuer",
+    "connecting": "Connexion…",
+    "secureNote": "Connexion sécurisée · MFA requis",
+    "mfaTitle": "Vérification en deux étapes",
+    "codeLabel": "Code de sécurité",
+    "codeHint": "6 chiffres reçus par email ou application",
+    "changeEmail": "← Changer d'email",
+    "submit": "Se connecter",
+    "verifying": "Vérification…",
+    "emailRequired": "Email requis.",
+    "passwordRequired": "Mot de passe requis.",
+    "codeRequired": "Code à 6 chiffres requis.",
+    "invalidEmail": "Adresse email invalide.",
+    "invalidCredentials": "Identifiants invalides.",
+    "loginFailed": "Échec de la connexion.",
+    "apiUnreachable": "API injoignable. Réessayez plus tard.",
+    "mfaPrompt": "Saisissez le code à 6 chiffres de votre application d'authentification.",
+    "mfaSessionLost": "Session MFA introuvable, recommencez.",
+    "codeRequiredShort": "Code requis.",
+    "codeInvalid": "Code incorrect ou expiré."
+  },
+  "security": {
+    "title": "Sécurité",
+    "pageSubtitle": "Gérez la double authentification (2FA) de votre compte.",
+    "card2faTitle": "Double authentification (2FA)",
+    "enabled": "Activée",
+    "disabled": "Désactivée",
+    "activate": "Activer le 2FA",
+    "enrollIntro": "Scannez ce QR code avec votre application d'authentification (Google Authenticator, Authy, 1Password…), puis saisissez le code généré.",
+    "qrAlt": "QR code 2FA",
+    "manualKey": "Clé manuelle :",
+    "codeLabel": "Code à 6 chiffres",
+    "confirm": "Confirmer",
+    "manageIntro": "Pour désactiver le 2FA ou régénérer vos codes de secours, saisissez un code TOTP ou un code de secours.",
+    "codeOrRecoveryLabel": "Code TOTP ou code de secours",
+    "regenerate": "Régénérer les codes de secours",
+    "disable": "Désactiver le 2FA",
+    "recoveryTitle": "Codes de secours",
+    "recoveryIntro": "Conservez ces codes en lieu sûr : chacun n'est utilisable qu'une fois. Ils ne seront plus affichés.",
+    "trustedTitle": "Appareils de confiance",
+    "device": "Appareil",
+    "expiresOn": "Expire le {date}",
+    "revoke": "Révoquer",
+    "codeRequired6": "Code à 6 chiffres requis.",
+    "codeRequiredDisable": "Code requis pour désactiver.",
+    "codeRequiredRegen": "Code requis pour régénérer."
+  },
+  "communication": {
+    "list": {
+      "title": "Emails — Templates",
+      "subtitle": "Éditez le contenu des emails transactionnels (sujet, corps, variables) par langue, puis publiez la version. Les types sont définis par l'application.",
+      "languages": "langues : {list}",
+      "draftInProgress": "brouillon en cours",
+      "notCreated": "Non créé"
+    },
+    "status": {
+      "PUBLISHED": "Publié",
+      "DRAFT": "Brouillon",
+      "ARCHIVED": "Archivé"
+    },
+    "editor": {
+      "breadcrumb": "Emails",
+      "pageTitle": "Édition du template",
+      "unknownType": "Type de template inconnu.",
+      "versionLabel": "Version {version}",
+      "noVersion": "Aucune version",
+      "protectedNote": "type protégé",
+      "createDraft": "Créer un brouillon",
+      "publish": "Publier",
+      "archive": "Archiver",
+      "addLang": "+ langue",
+      "subject": "Sujet",
+      "body": "Corps",
+      "noBlocks": "Aucun bloc. Ajoutez-en un ci-dessous.",
+      "addHeading": "+ Titre",
+      "addParagraph": "+ Paragraphe",
+      "addButton": "+ Bouton",
+      "variables": "Variables",
+      "variablesHint": "Cliquez pour insérer dans le champ sélectionné.",
+      "samples": "Valeurs d'exemple",
+      "samplesHint": "Utilisées pour l'aperçu et l'envoi de test.",
+      "previewTest": "Aperçu & test",
+      "preview": "Prévisualiser",
+      "sendTest": "Envoyer un test",
+      "testEmailPlaceholder": "email@test.fr",
+      "previewTitle": "Aperçu — {subject}",
+      "insertFocusHint": "Cliquez d'abord dans un champ pour y insérer la variable.",
+      "noSource": "Aucune version source.",
+      "draftCreated": "Brouillon créé. Vous pouvez maintenant l'éditer.",
+      "saved": "Enregistré.",
+      "published": "Version publiée.",
+      "archived": "Version archivée.",
+      "addLangPrompt": "Code langue à ajouter (ex. en, es) :",
+      "langAdded": "Langue {loc} ajoutée.",
+      "testSent": "Envoyé à {to} (visible dans MailHog).",
+      "testFailed": "Échec : {error}"
+    },
+    "blocks": {
+      "heading": "Titre",
+      "paragraph": "Paragraphe",
+      "button": "Bouton",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "remove": "Supprimer",
+      "labelPlaceholder": "Libellé",
+      "linkPlaceholder": "Lien (ex. activationLink)",
+      "level1": "Niveau 1",
+      "level2": "Niveau 2",
+      "alignLeft": "Gauche",
+      "alignCenter": "Centré",
+      "alignRight": "Droite",
+      "noteNormal": "Normal",
+      "noteMuted": "Atténué",
+      "noteFaint": "Discret"
+    }
+  },
+  "product": {
+    "valuation": "Valorisation",
+    "coupon": "Coupon",
+    "protection": "Protection",
+    "maturity": "Maturité",
+    "description": "Description",
+    "annual": "Annuel",
+    "barrier": "Barrière",
+    "finalDate": "Date finale"
+  },
+  "dashboard": {
+    "eyebrow": "Bienvenue",
+    "title": "Vue d'ensemble",
+    "chart": {
+      "heading": "Valorisation sur 12 mois",
+      "subheading": "Portefeuille vs. benchmark"
+    },
+    "topProducts": {
+      "heading": "Top produits",
+      "subheading": "Positions les plus représentées"
+    },
+    "events": {
+      "heading": "Événements récents",
+      "subheading": "30 derniers jours",
+      "sentence": "Événement « {kind} » enregistré le {day} {month} sur le produit {product}."
+    }
+  },
+  "products": {
+    "eyebrow": "Catalogue",
+    "title": "Offre produits",
+    "countHint": "{count, plural, one {# produit référencé. Cliquez une ligne pour voir le détail.} other {# produits référencés. Cliquez une ligne pour voir le détail.}}",
+    "searchPlaceholder": "Rechercher un ISIN, produit, sous-jacent, émetteur…",
+    "exportCsv": "Exporter CSV",
+    "filters": {
+      "toggle": "Filtres",
+      "minCoupon": "Coupon minimum",
+      "minProtection": "Protection min.",
+      "issuer": "Emetteur",
+      "performance": "Performance"
+    },
+    "performance": {
+      "positive": "Positive",
+      "stable": "Stable",
+      "negative": "Négative"
+    },
+    "detail": {
+      "descriptionSubheading": "Caractéristiques du produit",
+      "documentsHeading": "Documents",
+      "documentsSubheading": "KID, term-sheet, prospectus",
+      "variation": "Variation"
+    }
+  },
+  "portfolio": {
+    "eyebrow": "Analyse globale",
+    "title": "Portefeuilles",
+    "exportCsv": "Exporter CSV",
+    "kpis": {
+      "totalAum": "Encours total",
+      "totalAumSub": "Sous gestion",
+      "clients": "Clients",
+      "clientsSub": "Actifs ce mois",
+      "avgCoupon": "Coupon moyen",
+      "avgCouponSub": "Toutes positions"
+    },
+    "positionsHeading": "Positions par client",
+    "positionsCount": "{count, plural, one {# position} other {# positions}}",
+    "productCount": "{count, plural, one {# produit} other {# produits}}",
+    "productCountInPortfolio": "{count, plural, one {# produit en portefeuille} other {# produits en portefeuille}}",
+    "modal": {
+      "aum": "Encours",
+      "productsHeld": "Produits détenus",
+      "avgCoupon": "Coupon moyen",
+      "detailedPositions": "Positions détaillées"
+    }
+  },
+  "reports": {
+    "eyebrow": "Production documentaire",
+    "title": "Reporting",
+    "countHint": "{count, plural, one {# reporting généré au total.} other {# reportings générés au total.}}",
+    "newReport": "Nouveau reporting",
+    "confirmDelete": "Supprimer « {title} » ?",
+    "empty": {
+      "heading": "Aucun reporting généré",
+      "body": "Créez votre premier reporting client pour commencer."
+    },
+    "table": {
+      "title": "Titre",
+      "type": "Type",
+      "client": "Client",
+      "period": "Période",
+      "date": "Date",
+      "author": "Auteur",
+      "status": "Statut"
+    },
+    "status": {
+      "ready": "Prêt",
+      "pending": "En cours",
+      "failed": "Échec"
+    },
+    "actions": {
+      "download": "Télécharger",
+      "delete": "Supprimer"
+    },
+    "kinds": {
+      "valorisation": "Valorisation",
+      "mifid": "MIFID II",
+      "performance": "Performance",
+      "conformite": "Conformité"
+    },
+    "form": {
+      "titleLabel": "Titre",
+      "titlePlaceholder": "Ex : Valorisation Q2 2026 — Dupont",
+      "typeLabel": "Type",
+      "clientLabel": "Client",
+      "clientPlaceholder": "Nom du client",
+      "clientHint": "Au moins 2 caractères",
+      "periodLabel": "Période",
+      "periodPlaceholder": "Q2 2026, Mars 2026, Annuel 2025…",
+      "submit": "Générer",
+      "submitting": "Envoi…",
+      "errors": {
+        "titleTooShort": "Titre trop court (min. 3 caractères).",
+        "clientRequired": "Nom du client requis.",
+        "periodRequired": "Période requise."
+      }
+    }
+  },
+  "users": {
+    "eyebrow": "Administration",
+    "title": "Utilisateurs",
+    "count": "{count, plural, one {# utilisateur} other {# utilisateurs}}",
+    "invite": "Inviter un utilisateur",
+    "inviteSubmit": "Inviter",
+    "confirmDelete": "Supprimer {name} ?",
+    "actions": {
+      "label": "Actions",
+      "setAsPartner": "Définir comme partenaire",
+      "setAsAdmin": "Définir comme admin",
+      "delete": "Supprimer"
+    },
+    "roles": {
+      "partner": "Partenaire",
+      "admin": "Administrateur"
+    },
+    "form": {
+      "nameLabel": "Nom complet",
+      "namePlaceholder": "Prénom Nom",
+      "emailLabel": "Email",
+      "emailPlaceholder": "prenom.nom@cabinet.fr",
+      "orgLabel": "Organisation",
+      "orgPlaceholder": "Cabinet Helios",
+      "roleLabel": "Rôle",
+      "errors": {
+        "nameRequired": "Nom requis.",
+        "emailInvalid": "Email invalide."
+      }
+    }
+  }
+}

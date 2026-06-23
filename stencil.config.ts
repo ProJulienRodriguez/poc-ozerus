@@ -2,7 +2,8 @@ import { Config } from '@stencil/core';
 
 export const config: Config = {
   namespace: 'ozerus-ds',
-  globalStyle: 'src/global/tokens.css',
+  srcDir: 'design-system',
+  globalStyle: 'design-system/global/tokens.css',
   sourceMap: true,
   outputTargets: [
     {

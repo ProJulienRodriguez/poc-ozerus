@@ -1,6 +1,6 @@
 import { Body, Controller, Get, NotFoundException, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { IsIn, IsString, MinLength } from 'class-validator';
-import { JwtAuthGuard } from '../auth/jwt.guard';
+import { AccessTokenGuard } from '../modules/identity/presentation/guards/access-token.guard';
 import { ReportsService, ReportKind } from './reports.service';
 
 class CreateReportDto {
@@ -10,7 +10,7 @@ class CreateReportDto {
   @IsString() @MinLength(2) period!: string;
 }
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(AccessTokenGuard)
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reports: ReportsService) {}

@@ -1,9 +1,8 @@
-import { fetchMe, readToken } from '@/lib/auth';
+import { fetchMe } from '@/lib/auth';
 import { NewReportForm } from './new-report-form';
 
 export default async function NewReportPage() {
-  const token = readToken();
-  const user = token ? await fetchMe(token) : null;
+  const user = await fetchMe();
   const author = user?.name ?? 'Utilisateur';
   return (
     <div>

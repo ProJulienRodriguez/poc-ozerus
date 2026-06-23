@@ -1,11 +1,11 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt.guard';
+import { AccessTokenGuard } from '../modules/identity/presentation/guards/access-token.guard';
 
 const ASC = [220, 225, 232, 238, 244, 251, 258, 266, 270, 276, 280, 285];
 const BENCH = [215, 220, 226, 230, 236, 240, 248, 254, 260, 263, 268, 274];
 const WAVE = [32, 34, 36, 35, 38, 39, 41, 40, 42, 41, 42, 42];
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(AccessTokenGuard)
 @Controller('dashboard')
 export class DashboardController {
   @Get('kpis')

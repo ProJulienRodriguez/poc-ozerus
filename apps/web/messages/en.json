@@ -1,0 +1,323 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "loadError": "Failed to load.",
+    "error": "Error.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "reset": "Reset",
+    "all": "All",
+    "allFeminine": "All"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "portfolio": "Portfolios",
+    "reports": "Reporting",
+    "users": "Users",
+    "communication": "Emails",
+    "security": "Security"
+  },
+  "shell": {
+    "partnerSpace": "Partner space",
+    "expandMenu": "Expand menu",
+    "collapseMenu": "Collapse menu",
+    "openMenu": "Open menu",
+    "logout": "Sign out",
+    "searchPlaceholder": "Search an ISIN, product, client…",
+    "noResults": "No results for “{query}”.",
+    "export": "Export",
+    "newReport": "New report",
+    "notifications": "Notifications",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No notifications.",
+    "searchKind": {
+      "product": "Product",
+      "client": "Client",
+      "report": "Report",
+      "user": "User"
+    }
+  },
+  "login": {
+    "title": "Sign in to the extranet",
+    "subtitle": "Access your partner space",
+    "emailLabel": "Email",
+    "emailPlaceholder": "name@firm.com",
+    "passwordLabel": "Password",
+    "passwordHint": "Minimum 4 characters (demo)",
+    "continue": "Continue",
+    "connecting": "Signing in…",
+    "secureNote": "Secure sign-in · MFA required",
+    "mfaTitle": "Two-step verification",
+    "codeLabel": "Security code",
+    "codeHint": "6 digits from your email or app",
+    "changeEmail": "← Change email",
+    "submit": "Sign in",
+    "verifying": "Verifying…",
+    "emailRequired": "Email required.",
+    "passwordRequired": "Password required.",
+    "codeRequired": "6-digit code required.",
+    "invalidEmail": "Invalid email address.",
+    "invalidCredentials": "Invalid credentials.",
+    "loginFailed": "Sign-in failed.",
+    "apiUnreachable": "API unreachable. Try again later.",
+    "mfaPrompt": "Enter the 6-digit code from your authenticator app.",
+    "mfaSessionLost": "MFA session not found, please retry.",
+    "codeRequiredShort": "Code required.",
+    "codeInvalid": "Incorrect or expired code."
+  },
+  "security": {
+    "title": "Security",
+    "pageSubtitle": "Manage two-factor authentication (2FA) for your account.",
+    "card2faTitle": "Two-factor authentication (2FA)",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "activate": "Enable 2FA",
+    "enrollIntro": "Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password…), then enter the generated code.",
+    "qrAlt": "2FA QR code",
+    "manualKey": "Manual key:",
+    "codeLabel": "6-digit code",
+    "confirm": "Confirm",
+    "manageIntro": "To disable 2FA or regenerate your recovery codes, enter a TOTP code or a recovery code.",
+    "codeOrRecoveryLabel": "TOTP code or recovery code",
+    "regenerate": "Regenerate recovery codes",
+    "disable": "Disable 2FA",
+    "recoveryTitle": "Recovery codes",
+    "recoveryIntro": "Keep these codes safe: each can be used only once. They won't be shown again.",
+    "trustedTitle": "Trusted devices",
+    "device": "Device",
+    "expiresOn": "Expires on {date}",
+    "revoke": "Revoke",
+    "codeRequired6": "6-digit code required.",
+    "codeRequiredDisable": "Code required to disable.",
+    "codeRequiredRegen": "Code required to regenerate."
+  },
+  "communication": {
+    "list": {
+      "title": "Emails — Templates",
+      "subtitle": "Edit the content of transactional emails (subject, body, variables) per language, then publish the version. Types are defined by the application.",
+      "languages": "languages: {list}",
+      "draftInProgress": "draft in progress",
+      "notCreated": "Not created"
+    },
+    "status": {
+      "PUBLISHED": "Published",
+      "DRAFT": "Draft",
+      "ARCHIVED": "Archived"
+    },
+    "editor": {
+      "breadcrumb": "Emails",
+      "pageTitle": "Edit template",
+      "unknownType": "Unknown template type.",
+      "versionLabel": "Version {version}",
+      "noVersion": "No version",
+      "protectedNote": "protected type",
+      "createDraft": "Create a draft",
+      "publish": "Publish",
+      "archive": "Archive",
+      "addLang": "+ language",
+      "subject": "Subject",
+      "body": "Body",
+      "noBlocks": "No block. Add one below.",
+      "addHeading": "+ Heading",
+      "addParagraph": "+ Paragraph",
+      "addButton": "+ Button",
+      "variables": "Variables",
+      "variablesHint": "Click to insert into the selected field.",
+      "samples": "Sample values",
+      "samplesHint": "Used for preview and test sending.",
+      "previewTest": "Preview & test",
+      "preview": "Preview",
+      "sendTest": "Send a test",
+      "testEmailPlaceholder": "email@test.com",
+      "previewTitle": "Preview — {subject}",
+      "insertFocusHint": "Click into a field first to insert the variable.",
+      "noSource": "No source version.",
+      "draftCreated": "Draft created. You can now edit it.",
+      "saved": "Saved.",
+      "published": "Version published.",
+      "archived": "Version archived.",
+      "addLangPrompt": "Language code to add (e.g. en, es):",
+      "langAdded": "Language {loc} added.",
+      "testSent": "Sent to {to} (visible in MailHog).",
+      "testFailed": "Failed: {error}"
+    },
+    "blocks": {
+      "heading": "Heading",
+      "paragraph": "Paragraph",
+      "button": "Button",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "remove": "Remove",
+      "labelPlaceholder": "Label",
+      "linkPlaceholder": "Link (e.g. activationLink)",
+      "level1": "Level 1",
+      "level2": "Level 2",
+      "alignLeft": "Left",
+      "alignCenter": "Center",
+      "alignRight": "Right",
+      "noteNormal": "Normal",
+      "noteMuted": "Muted",
+      "noteFaint": "Faint"
+    }
+  },
+  "product": {
+    "valuation": "Valuation",
+    "coupon": "Coupon",
+    "protection": "Protection",
+    "maturity": "Maturity",
+    "description": "Description",
+    "annual": "Annual",
+    "barrier": "Barrier",
+    "finalDate": "Final date"
+  },
+  "dashboard": {
+    "eyebrow": "Welcome",
+    "title": "Overview",
+    "chart": {
+      "heading": "Valuation over 12 months",
+      "subheading": "Portfolio vs. benchmark"
+    },
+    "topProducts": {
+      "heading": "Top products",
+      "subheading": "Most held positions"
+    },
+    "events": {
+      "heading": "Recent events",
+      "subheading": "Last 30 days",
+      "sentence": "Event “{kind}” recorded on {day} {month} for product {product}."
+    }
+  },
+  "products": {
+    "eyebrow": "Catalogue",
+    "title": "Products",
+    "countHint": "{count, plural, one {# product listed. Click a row to view details.} other {# products listed. Click a row to view details.}}",
+    "searchPlaceholder": "Search an ISIN, product, underlying, issuer…",
+    "exportCsv": "Export CSV",
+    "filters": {
+      "toggle": "Filters",
+      "minCoupon": "Minimum coupon",
+      "minProtection": "Min. protection",
+      "issuer": "Issuer",
+      "performance": "Performance"
+    },
+    "performance": {
+      "positive": "Positive",
+      "stable": "Stable",
+      "negative": "Negative"
+    },
+    "detail": {
+      "descriptionSubheading": "Product characteristics",
+      "documentsHeading": "Documents",
+      "documentsSubheading": "KID, term-sheet, prospectus",
+      "variation": "Change"
+    }
+  },
+  "portfolio": {
+    "eyebrow": "Global analysis",
+    "title": "Portfolios",
+    "exportCsv": "Export CSV",
+    "kpis": {
+      "totalAum": "Total AUM",
+      "totalAumSub": "Under management",
+      "clients": "Clients",
+      "clientsSub": "Active this month",
+      "avgCoupon": "Average coupon",
+      "avgCouponSub": "All positions"
+    },
+    "positionsHeading": "Positions by client",
+    "positionsCount": "{count, plural, one {# position} other {# positions}}",
+    "productCount": "{count, plural, one {# product} other {# products}}",
+    "productCountInPortfolio": "{count, plural, one {# product in portfolio} other {# products in portfolio}}",
+    "modal": {
+      "aum": "AUM",
+      "productsHeld": "Products held",
+      "avgCoupon": "Average coupon",
+      "detailedPositions": "Detailed positions"
+    }
+  },
+  "reports": {
+    "eyebrow": "Document production",
+    "title": "Reporting",
+    "countHint": "{count, plural, one {# report generated in total.} other {# reports generated in total.}}",
+    "newReport": "New report",
+    "confirmDelete": "Delete “{title}”?",
+    "empty": {
+      "heading": "No report generated",
+      "body": "Create your first client report to get started."
+    },
+    "table": {
+      "title": "Title",
+      "type": "Type",
+      "client": "Client",
+      "period": "Period",
+      "date": "Date",
+      "author": "Author",
+      "status": "Status"
+    },
+    "status": {
+      "ready": "Ready",
+      "pending": "In progress",
+      "failed": "Failed"
+    },
+    "actions": {
+      "download": "Download",
+      "delete": "Delete"
+    },
+    "kinds": {
+      "valorisation": "Valuation",
+      "mifid": "MIFID II",
+      "performance": "Performance",
+      "conformite": "Compliance"
+    },
+    "form": {
+      "titleLabel": "Title",
+      "titlePlaceholder": "E.g. Valuation Q2 2026 — Dupont",
+      "typeLabel": "Type",
+      "clientLabel": "Client",
+      "clientPlaceholder": "Client name",
+      "clientHint": "At least 2 characters",
+      "periodLabel": "Period",
+      "periodPlaceholder": "Q2 2026, March 2026, Annual 2025…",
+      "submit": "Generate",
+      "submitting": "Sending…",
+      "errors": {
+        "titleTooShort": "Title too short (min. 3 characters).",
+        "clientRequired": "Client name required.",
+        "periodRequired": "Period required."
+      }
+    }
+  },
+  "users": {
+    "eyebrow": "Administration",
+    "title": "Users",
+    "count": "{count, plural, one {# user} other {# users}}",
+    "invite": "Invite a user",
+    "inviteSubmit": "Invite",
+    "confirmDelete": "Delete {name}?",
+    "actions": {
+      "label": "Actions",
+      "setAsPartner": "Set as partner",
+      "setAsAdmin": "Set as admin",
+      "delete": "Delete"
+    },
+    "roles": {
+      "partner": "Partner",
+      "admin": "Administrator"
+    },
+    "form": {
+      "nameLabel": "Full name",
+      "namePlaceholder": "First Last",
+      "emailLabel": "Email",
+      "emailPlaceholder": "first.last@firm.com",
+      "orgLabel": "Organization",
+      "orgPlaceholder": "Helios Firm",
+      "roleLabel": "Role",
+      "errors": {
+        "nameRequired": "Name required.",
+        "emailInvalid": "Invalid email."
+      }
+    }
+  }
+}

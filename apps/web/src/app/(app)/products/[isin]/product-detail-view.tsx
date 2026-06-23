@@ -1,12 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { Product } from '@/mocks/types';
 import { downloadText, sanitizeFilename } from '@/lib/file-download';
 
 const DOCS = ['Term-sheet', 'KID (PRIIPs)', 'Prospectus de base', 'Final terms'];
 
 export function ProductDetailView({ product }: { product: Product }) {
+  const t = useTranslations('products');
+  const tp = useTranslations('product');
   const deltaColor = product.tone === 'danger' ? 'var(--oz-danger)'
     : product.tone === 'success' ? 'var(--oz-forest)' : 'var(--oz-ink-3)';
 
@@ -35,7 +38,7 @@ export function ProductDetailView({ product }: { product: Product }) {
     <div>
       <div className="page-head">
         <div className="oz-micro oz-muted">
-          <Link href="/products" style={{ color: 'var(--oz-forest-700)', textDecoration: 'underline' }}>Offre produits</Link>
+          <Link href="/products" style={{ color: 'var(--oz-forest-700)', textDecoration: 'underline' }}>{t('title')}</Link>
           {' / '}{product.isin}
         </div>
         <h1 className="oz-h1" style={{ marginTop: 8 }}>{product.name}</h1>
@@ -48,18 +51,18 @@ export function ProductDetailView({ product }: { product: Product }) {
       </div>
 
       <div className="grid-4" style={{ marginBottom: 20 }}>
-        <oz-kpi label="Valorisation" value={product.val} unit={product.currency} delta={product.delta} delta-tone={product.tone === 'danger' ? 'danger' : product.tone === 'success' ? 'success' : 'neutral'} />
-        <oz-kpi label="Coupon" value={product.coupon} sub="Annuel" />
-        <oz-kpi label="Protection" value={product.prot} sub="Barrière" />
-        <oz-kpi label="Maturité" value={product.matur} sub="Date finale" />
+        <oz-kpi label={tp('valuation')} value={product.val} unit={product.currency} delta={product.delta} delta-tone={product.tone === 'danger' ? 'danger' : product.tone === 'success' ? 'success' : 'neutral'} />
+        <oz-kpi label={tp('coupon')} value={product.coupon} sub={tp('annual')} />
+        <oz-kpi label={tp('protection')} value={product.prot} sub={tp('barrier')} />
+        <oz-kpi label={tp('maturity')} value={product.matur} sub={tp('finalDate')} />
       </div>
 
       <div className="split-main">
-        <oz-card heading="Description" subheading="Caractéristiques du produit">
+        <oz-card heading={tp('description')} subheading={t('detail.descriptionSubheading')}>
           <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: 'var(--oz-ink-2)' }}>{product.description}</p>
         </oz-card>
 
-        <oz-card heading="Documents" subheading="KID, term-sheet, prospectus">
+        <oz-card heading={t('detail.documentsHeading')} subheading={t('detail.documentsSubheading')}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {DOCS.map(doc => (
               <button
@@ -89,7 +92,7 @@ export function ProductDetailView({ product }: { product: Product }) {
       </div>
 
       <div style={{ marginTop: 24, display: 'flex', gap: 12, color: deltaColor, fontSize: 12 }}>
-        <span className="oz-mono">Variation : {product.delta}</span>
+        <span className="oz-mono">{t('detail.variation')} : {product.delta}</span>
       </div>
     </div>
   );

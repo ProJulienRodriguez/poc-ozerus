@@ -1,5 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import { DsLoader } from '@/components/ds-loader';
 
 export const metadata: Metadata = {
@@ -13,12 +15,16 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
   return (
-    <html lang="fr">
+    <html lang={locale}>
       <body>
-        <DsLoader />
-        {children}
+        <NextIntlClientProvider messages={messages}>
+          <DsLoader />
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

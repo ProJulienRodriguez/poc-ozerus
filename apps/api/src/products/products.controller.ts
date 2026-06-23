@@ -1,8 +1,8 @@
 import { Controller, Get, NotFoundException, Param, Query, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt.guard';
+import { AccessTokenGuard } from '../modules/identity/presentation/guards/access-token.guard';
 import { PRODUCTS, Product } from '../mock/products.mock';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(AccessTokenGuard)
 @Controller('products')
 export class ProductsController {
   @Get()

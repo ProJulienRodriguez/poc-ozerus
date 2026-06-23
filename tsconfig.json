@@ -14,6 +14,6 @@
     "jsxFactory": "h",
     "resolveJsonModule": true
   },
-  "include": ["src"],
+  "include": ["design-system"],
   "exclude": ["node_modules"]
 }
